@@ -48,6 +48,19 @@ export const useAuthStore = defineStore('auth', {
             if (import.meta.client) {
                 localStorage.setItem('agrovet_user', JSON.stringify(this.user))
                 localStorage.setItem('agrovet_token', this.token || '')
+
+                // Clear local DB and pull fresh data for this user
+                const { db } = await import('~/plugins/dexie.client')
+                await Promise.all([
+                    db.propriedades.clear(),
+                    db.lotes.clear(),
+                    db.animais.clear(),
+                    db.iatfRecords.clear(),
+                    db.syncQueue.clear(),
+                ])
+                const { useSync } = await import('~/composables/useSync')
+                const { pullFromServer } = useSync()
+                await pullFromServer()
             }
         },
 
@@ -70,6 +83,19 @@ export const useAuthStore = defineStore('auth', {
             if (import.meta.client) {
                 localStorage.removeItem('agrovet_token')
                 localStorage.removeItem('agrovet_user')
+
+                // Wipe all local data for privacy and multi-user support
+                const { db } = await import('~/plugins/dexie.client')
+                await Promise.all([
+                    db.propriedades.clear(),
+                    db.lotes.clear(),
+                    db.animais.clear(),
+                    db.iatfRecords.clear(),
+                    db.syncQueue.clear(),
+                ])
+
+                const appStore = useAppStore()
+                await appStore.updateSyncCount()
             }
         },
 

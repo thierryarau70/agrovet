@@ -142,17 +142,17 @@ const stats = ref([
 const recentIatf = ref<any[]>([])
 
 const handleLogout = async () => {
-  auth.logout()
+  await auth.logout()
   await navigateTo('/login')
 }
 
 onMounted(async () => {
   if (!import.meta.client) return
   try {
-    stats.value[0].value = await db.propriedades.count()
-    stats.value[1].value = await db.lotes.count()
-    stats.value[2].value = await db.iatfRecords.count()
-    stats.value[3].value = await db.animais.count()
+    if (stats.value[0]) stats.value[0].value = await db.propriedades.count()
+    if (stats.value[1]) stats.value[1].value = await db.lotes.count()
+    if (stats.value[2]) stats.value[2].value = await db.iatfRecords.count()
+    if (stats.value[3]) stats.value[3].value = await db.animais.count()
     recentIatf.value = await db.iatfRecords.orderBy('createdAt').reverse().limit(5).toArray()
   } catch {}
 })

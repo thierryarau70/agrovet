@@ -61,6 +61,52 @@ export const useSync = () => {
         }
     }
 
+    const pullFromServer = async () => {
+        if (!isOnline.value || !auth.isLoggedIn) return
+        const sb = getSupabase() as any
+        appStore.isSyncing = true
+        try {
+            // Fetch all user data
+            const [resProp, resLotes, resAnimais, resIatf] = await Promise.all([
+                sb.from('propriedades').select('*'),
+                sb.from('lotes').select('*'),
+                sb.from('animais').select('*'),
+                sb.from('iatf_records').select('*'),
+            ])
+
+            // Overwrite local indexedDB with user data from Supabase
+            await db.transaction('rw', db.propriedades, db.lotes, db.animais, db.iatfRecords, async () => {
+                if (resProp.data) {
+                    await db.propriedades.clear()
+                    await db.propriedades.bulkAdd(resProp.data.map((d: any) => ({ ...d, synced: true })))
+                }
+                if (resLotes.data) {
+                    await db.lotes.clear()
+                    await db.lotes.bulkAdd(resLotes.data.map((d: any) => ({ ...d, synced: true })))
+                }
+                if (resAnimais.data) {
+                    await db.animais.clear()
+                    await db.animais.bulkAdd(resAnimais.data.map((d: any) => ({ ...d, synced: true })))
+                }
+                if (resIatf.data) {
+                    await db.iatfRecords.clear()
+                    await db.iatfRecords.bulkAdd(resIatf.data.map((r: any) => ({
+                        id: r.id,
+                        loteId: r.lote_id,
+                        propriedadeId: r.propriedade_id,
+                        ...r.data,
+                        synced: true,
+                    })))
+                }
+            })
+            appStore.notify('Dados atualizados da nuvem ✓', 'success')
+        } catch (e) {
+            console.error('Error pulling from server:', e)
+        } finally {
+            appStore.isSyncing = false
+        }
+    }
+
     const addToQueue = async (
         action: 'create' | 'update' | 'delete',
         table: string,
@@ -92,5 +138,5 @@ export const useSync = () => {
         }
     })
 
-    return { syncToServer, addToQueue, isOnline }
+    return { syncToServer, addToQueue, pullFromServer, isOnline }
 }
