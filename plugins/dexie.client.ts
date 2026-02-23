@@ -29,6 +29,7 @@ export interface Animal {
     femea: string
     categoria: string
     observacao?: string
+    status_prenhez?: 'Prenhe' | 'Vazia'
     createdAt: string
     updatedAt: string
     synced: boolean
@@ -75,6 +76,7 @@ export interface IatfAnimal {
     touro: string
     partida: string
     obs: string
+    dg_status?: 'Prenhe' | 'Vazia'
 }
 
 export interface SyncQueueItem {

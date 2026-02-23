@@ -46,6 +46,7 @@ create table if not exists public.animais (
   categoria text,
   ord int,
   observacao text,
+  status_prenhez text default 'Vazia',
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );

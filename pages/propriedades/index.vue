@@ -54,7 +54,7 @@
           </div>
           <div>
             <label class="label">Estado</label>
-            <input v-model="form.estado" class="input-field" placeholder="PR" maxlength="2" />
+            <input v-model="form.estado" v-maska="'@@'" data-maska-tokens="A:[A-Z]:multiple" class="input-field uppercase" placeholder="UF" />
           </div>
         </div>
       </form>

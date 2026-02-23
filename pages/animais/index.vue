@@ -35,6 +35,9 @@
             </p>
           </div>
           <div class="flex items-center gap-2">
+            <span v-if="a.status_prenhez" :class="['text-xs px-2 py-0.5 rounded-full border', a.status_prenhez === 'Prenhe' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30']">
+              {{ a.status_prenhez }}
+            </span>
             <span :class="['badge', a.synced ? 'badge-green' : 'badge-yellow']">
               {{ a.synced ? '✓' : '⏳' }}
             </span>

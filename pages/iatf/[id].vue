@@ -16,10 +16,7 @@
         </button>
       </template>
     </PageHeader>
-
-    <div class="max-w-2xl mx-auto px-4 pt-4 space-y-4">
-
-      <!-- ═══ SEÇÃO 1: CABEÇALHO ═══ -->
+    <div class="max-w-4xl mx-auto px-4 pt-4 space-y-4">      <!-- ═══ SEÇÃO 1: CABEÇALHO ═══ -->
       <div class="card space-y-4">
         <h2 class="section-title flex items-center gap-2">
           <span class="w-6 h-6 bg-brand-800 rounded text-xs flex items-center justify-center text-brand-300 font-bold">1</span>
@@ -209,6 +206,7 @@
               <tr>
                 <th class="table-header w-10 text-center">ORD</th>
                 <th class="table-header">Fêmea</th>
+                <th class="table-header text-center">Res. DG</th>
                 <th class="table-header text-center">D-0+DG</th>
                 <th class="table-header text-center">DG 35</th>
                 <th class="table-header text-center">D-8</th>
@@ -233,6 +231,13 @@
                 <td class="table-cell text-center font-semibold text-brand-400">{{ animal.ord }}</td>
                 <td class="table-cell">
                   <input v-model="animal.femea" class="table-input w-20" placeholder="ID/Tag" />
+                </td>
+                <td class="table-cell text-center">
+                  <select v-model="animal.dg_status" class="table-input w-24">
+                    <option :value="undefined">---</option>
+                    <option value="Prenhe">Prenhe</option>
+                    <option value="Vazia">Vazia</option>
+                  </select>
                 </td>
                 <td class="table-cell text-center">
                   <input v-model="animal.d0dg" class="table-input w-16 text-center" type="date" />
@@ -378,6 +383,7 @@ const addAnimal = () => {
     touro: '',
     partida: '',
     obs: '',
+    dg_status: undefined,
   })
 }
 
@@ -395,6 +401,7 @@ const bulkAddAnimals = () => {
       touro: '',
       partida: '',
       obs: '',
+      dg_status: undefined,
     })
   }
 }
@@ -432,6 +439,53 @@ const saveRecord = async () => {
       await db.iatfRecords.update(id, { ...data, updatedAt: now })
       await addToQueue('update', 'iatfRecords', id, data)
       appStore.notify('Protocolo atualizado! ✓', 'success')
+    }
+
+    // Update animals pregnancy status or create new animals
+    const animaisNoLote = await db.animais.where('loteId').equals(Number(form.loteId)).toArray()
+    const animaisToUpdate: any[] = []
+    const animaisToCreate: any[] = []
+
+    for (const a of data.animais) {
+      if (!a.femea) continue // Ignorar linhas vazias
+
+      const match = animaisNoLote.find(dbA => String(dbA.femea).trim() === String(a.femea).trim())
+
+      if (match) {
+        // Atualizar se o status_prenhez tiver mudado (e o campo DG foi preenchido)
+        if (a.dg_status && match.status_prenhez !== a.dg_status) {
+          match.status_prenhez = a.dg_status
+          match.updatedAt = now
+          animaisToUpdate.push(match)
+        }
+      } else {
+        // Animal não existe no lote, cria automaticamente
+        animaisToCreate.push({
+          loteId: Number(form.loteId),
+          femea: String(a.femea).trim(),
+          categoria: form.categoria || 'Não definida',
+          ord: Number(a.ord) || 0,
+          observacao: a.obs || '',
+          status_prenhez: a.dg_status || 'Vazia',
+          createdAt: now,
+          updatedAt: now,
+          synced: false
+        })
+      }
+    }
+
+    if (animaisToUpdate.length > 0) {
+      await db.animais.bulkPut(animaisToUpdate)
+      for (const updatedAnimal of animaisToUpdate) {
+         await addToQueue('update', 'animais', updatedAnimal.id, updatedAnimal)
+      }
+    }
+
+    if (animaisToCreate.length > 0) {
+      for (const newAnimal of animaisToCreate) {
+        const newId = await db.animais.add(newAnimal)
+        await addToQueue('create', 'animais', newId as number, newAnimal)
+      }
     }
   } catch (e) {
     appStore.notify('Erro ao salvar. Tente novamente.', 'error')

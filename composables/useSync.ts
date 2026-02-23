@@ -23,19 +23,18 @@ export const useSync = () => {
                 const userId = auth.user?.id
 
                 if (item.table === 'propriedades') {
-                    await sb.from('propriedades').upsert({ ...item.data, user_id: userId, id: item.recordId })
+                    const { createdAt, updatedAt, synced, ...rest } = item.data
+                    await sb.from('propriedades').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, user_id: userId, id: item.recordId })
                     await db.propriedades.update(item.recordId, { synced: true })
                 }
                 else if (item.table === 'lotes') {
-                    const payload = { ...item.data, user_id: userId, id: item.recordId, propriedade_id: item.data.propriedadeId }
-                    delete payload.propriedadeId
-                    await sb.from('lotes').upsert(payload)
+                    const { createdAt, updatedAt, synced, propriedadeId, ...rest } = item.data
+                    await sb.from('lotes').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, propriedade_id: propriedadeId, user_id: userId, id: item.recordId })
                     await db.lotes.update(item.recordId, { synced: true })
                 }
                 else if (item.table === 'animais') {
-                    const payload = { ...item.data, user_id: userId, id: item.recordId, lote_id: item.data.loteId }
-                    delete payload.loteId
-                    await sb.from('animais').upsert(payload)
+                    const { createdAt, updatedAt, synced, loteId, ...rest } = item.data
+                    await sb.from('animais').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, lote_id: loteId, user_id: userId, id: item.recordId })
                     await db.animais.update(item.recordId, { synced: true })
                 }
                 else if (item.table === 'iatfRecords') {
@@ -52,7 +51,8 @@ export const useSync = () => {
                 await db.syncQueue.delete(item.id!)
                 synced++
             }
-            catch {
+            catch (error) {
+                console.error('Error syncing item:', item.table, error)
                 await db.syncQueue.update(item.id!, { attempts: item.attempts + 1 })
             }
         }
@@ -82,13 +82,20 @@ export const useSync = () => {
             await db.transaction('rw', db.propriedades, db.lotes, db.animais, db.iatfRecords, async () => {
                 if (resProp.data) {
                     await db.propriedades.clear()
-                    await db.propriedades.bulkAdd(resProp.data.map((d: any) => ({ ...d, synced: true })))
+                    await db.propriedades.bulkAdd(resProp.data.map((d: any) => ({
+                        ...d,
+                        createdAt: d.created_at || new Date().toISOString(),
+                        updatedAt: d.updated_at || new Date().toISOString(),
+                        synced: true
+                    })))
                 }
                 if (resLotes.data) {
                     await db.lotes.clear()
                     await db.lotes.bulkAdd(resLotes.data.map((d: any) => ({
                         ...d,
                         propriedadeId: d.propriedade_id,
+                        createdAt: d.created_at || new Date().toISOString(),
+                        updatedAt: d.updated_at || new Date().toISOString(),
                         synced: true,
                     })))
                 }
@@ -97,6 +104,8 @@ export const useSync = () => {
                     await db.animais.bulkAdd(resAnimais.data.map((d: any) => ({
                         ...d,
                         loteId: d.lote_id,
+                        createdAt: d.created_at || new Date().toISOString(),
+                        updatedAt: d.updated_at || new Date().toISOString(),
                         synced: true,
                     })))
                 }

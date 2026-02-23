@@ -55,39 +55,52 @@
       <!-- Quick Actions -->
       <div class="mb-6">
         <h2 class="section-title">Ações Rápidas</h2>
-        <div class="grid grid-cols-2 gap-3">
-          <NuxtLink to="/iatf/novo" class="card flex flex-col items-center gap-2 py-5 hover:border-brand-600 transition-all group cursor-pointer text-center">
-            <div class="w-12 h-12 bg-brand-900/60 rounded-xl flex items-center justify-center group-hover:bg-brand-700/40 transition-colors">
-              <svg class="w-6 h-6 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
+        <div class="grid grid-cols-4 gap-3">
+          <NuxtLink to="/iatf/novo" class="card flex flex-col items-center gap-1 py-4 hover:border-brand-600 transition-all text-center group">
+            <div class="w-10 h-10 bg-brand-900/60 rounded-xl flex items-center justify-center group-hover:bg-brand-700/40 text-brand-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             </div>
-            <span class="text-sm font-medium text-gray-200">Novo IATF</span>
+            <span class="text-xs font-medium text-gray-200 mt-1">IATF</span>
           </NuxtLink>
-          <NuxtLink to="/propriedades" class="card flex flex-col items-center gap-2 py-5 hover:border-brand-600 transition-all group cursor-pointer text-center">
-            <div class="w-12 h-12 bg-brand-900/60 rounded-xl flex items-center justify-center group-hover:bg-brand-700/40 transition-colors">
-              <svg class="w-6 h-6 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
+          <NuxtLink to="/propriedades" class="card flex flex-col items-center gap-1 py-4 hover:border-brand-600 transition-all text-center group">
+            <div class="w-10 h-10 bg-brand-900/60 rounded-xl flex items-center justify-center group-hover:bg-brand-700/40 text-brand-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16H3m14 0h2m-2 0h-5m-9 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
             </div>
-            <span class="text-sm font-medium text-gray-200">Fazendas</span>
+            <span class="text-xs font-medium text-gray-200 mt-1">Fazendas</span>
           </NuxtLink>
-          <NuxtLink to="/lotes" class="card flex flex-col items-center gap-2 py-5 hover:border-brand-600 transition-all group cursor-pointer text-center">
-            <div class="w-12 h-12 bg-brand-900/60 rounded-xl flex items-center justify-center group-hover:bg-brand-700/40 transition-colors">
-              <svg class="w-6 h-6 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
+          <NuxtLink to="/lotes" class="card flex flex-col items-center gap-1 py-4 hover:border-brand-600 transition-all text-center group">
+            <div class="w-10 h-10 bg-brand-900/60 rounded-xl flex items-center justify-center group-hover:bg-brand-700/40 text-brand-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
             </div>
-            <span class="text-sm font-medium text-gray-200">Lotes</span>
+            <span class="text-xs font-medium text-gray-200 mt-1">Lotes</span>
           </NuxtLink>
-          <NuxtLink to="/animais" class="card flex flex-col items-center gap-2 py-5 hover:border-brand-600 transition-all group cursor-pointer text-center">
-            <div class="w-12 h-12 bg-brand-900/60 rounded-xl flex items-center justify-center group-hover:bg-brand-700/40 transition-colors">
-              <svg class="w-6 h-6 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
+          <NuxtLink to="/animais" class="card flex flex-col items-center gap-1 py-4 hover:border-brand-600 transition-all text-center group">
+            <div class="w-10 h-10 bg-brand-900/60 rounded-xl flex items-center justify-center group-hover:bg-brand-700/40 text-brand-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
             </div>
-            <span class="text-sm font-medium text-gray-200">Animais</span>
+            <span class="text-xs font-medium text-gray-200 mt-1">Animais</span>
           </NuxtLink>
+        </div>
+      </div>
+
+      <!-- Main Charts Component Dashboard -->
+      <div v-if="mounted" class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
+        <!-- Chart: Categorias -->
+        <div class="card p-4">
+          <h2 class="text-sm font-semibold text-gray-300 mb-4">Animais por Categoria</h2>
+          <div class="relative h-48 flex justify-center items-center">
+            <Doughnut v-if="chartDataCategorias.datasets[0]!.data.length > 0" :data="chartDataCategorias" :options="chartOptionsDoughnut" />
+            <div v-else class="text-xs text-brand-300 bg-brand-900/40 px-3 py-1.5 rounded-full border border-brand-800/50">Cadastre animais para ver dados</div>
+          </div>
+        </div>
+
+        <!-- Chart: Prenhez -->
+        <div class="card p-4">
+          <h2 class="text-sm font-semibold text-gray-300 mb-4">Controle de Prenhez (Geral)</h2>
+          <div class="relative h-48 flex justify-center items-center">
+             <Bar v-if="chartDataPrenhez.datasets[0]!.data.length > 0" :data="chartDataPrenhez" :options="chartOptionsBar" />
+             <div v-else class="text-xs text-brand-300 bg-brand-900/40 px-3 py-1.5 rounded-full border border-brand-800/50">Cadastre animais para ver dados</div>
+          </div>
         </div>
       </div>
 
@@ -139,6 +152,23 @@ const stats = ref([
   { label: 'Animais', value: 0, icon: '🐄', badge: 'Total', route: '/animais' },
 ])
 
+import { Doughnut, Bar } from 'vue-chartjs'
+const mounted = ref(false)
+
+// Chart Configurations
+const chartDataCategorias = ref({
+  labels: [] as string[],
+  datasets: [{ data: [] as number[], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'], borderWidth: 0, hoverOffset: 4 }]
+})
+
+const chartDataPrenhez = ref({
+  labels: ['Prenhes', 'Vazias'],
+  datasets: [{ label: 'Qtd.', data: [0, 0], backgroundColor: ['#10b981', '#f43f5e'], borderRadius: 4 }]
+})
+
+const chartOptionsDoughnut = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' as const, labels: { color: '#9ca3af', font: { size: 11 } } } }, cutout: '70%' }
+const chartOptionsBar = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#374151', display: false }, ticks: { color: '#9ca3af', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#9ca3af' } } } }
+
 const recentIatf = ref<any[]>([])
 
 const handleLogout = async () => {
@@ -148,12 +178,34 @@ const handleLogout = async () => {
 
 onMounted(async () => {
   if (!import.meta.client) return
+  mounted.value = true
   try {
     if (stats.value[0]) stats.value[0].value = await db.propriedades.count()
     if (stats.value[1]) stats.value[1].value = await db.lotes.count()
     if (stats.value[2]) stats.value[2].value = await db.iatfRecords.count()
     if (stats.value[3]) stats.value[3].value = await db.animais.count()
     recentIatf.value = await db.iatfRecords.orderBy('createdAt').reverse().limit(5).toArray()
+
+    const animais = await db.animais.toArray()
+    if (animais.length > 0) {
+      const cats: Record<string, number> = {}
+      let prenhes = 0
+      let vazias = 0
+
+      animais.forEach((a) => {
+        const c = a.categoria || 'Sem categoria'
+        cats[c] = (cats[c] || 0) + 1
+        if (a.status_prenhez === 'Prenhe') prenhes++
+        else vazias++
+      })
+
+      chartDataCategorias.value.labels = Object.keys(cats)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      chartDataCategorias.value.datasets[0]!.data = Object.values(cats)
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      chartDataPrenhez.value.datasets[0]!.data = [prenhes, vazias]
+    }
   } catch {}
 })
 </script>
