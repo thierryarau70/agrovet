@@ -27,11 +27,15 @@ export const useSync = () => {
                     await db.propriedades.update(item.recordId, { synced: true })
                 }
                 else if (item.table === 'lotes') {
-                    await sb.from('lotes').upsert({ ...item.data, user_id: userId, id: item.recordId })
+                    const payload = { ...item.data, user_id: userId, id: item.recordId, propriedade_id: item.data.propriedadeId }
+                    delete payload.propriedadeId
+                    await sb.from('lotes').upsert(payload)
                     await db.lotes.update(item.recordId, { synced: true })
                 }
                 else if (item.table === 'animais') {
-                    await sb.from('animais').upsert({ ...item.data, user_id: userId, id: item.recordId })
+                    const payload = { ...item.data, user_id: userId, id: item.recordId, lote_id: item.data.loteId }
+                    delete payload.loteId
+                    await sb.from('animais').upsert(payload)
                     await db.animais.update(item.recordId, { synced: true })
                 }
                 else if (item.table === 'iatfRecords') {
@@ -82,19 +86,27 @@ export const useSync = () => {
                 }
                 if (resLotes.data) {
                     await db.lotes.clear()
-                    await db.lotes.bulkAdd(resLotes.data.map((d: any) => ({ ...d, synced: true })))
+                    await db.lotes.bulkAdd(resLotes.data.map((d: any) => ({
+                        ...d,
+                        propriedadeId: d.propriedade_id,
+                        synced: true,
+                    })))
                 }
                 if (resAnimais.data) {
                     await db.animais.clear()
-                    await db.animais.bulkAdd(resAnimais.data.map((d: any) => ({ ...d, synced: true })))
+                    await db.animais.bulkAdd(resAnimais.data.map((d: any) => ({
+                        ...d,
+                        loteId: d.lote_id,
+                        synced: true,
+                    })))
                 }
                 if (resIatf.data) {
                     await db.iatfRecords.clear()
                     await db.iatfRecords.bulkAdd(resIatf.data.map((r: any) => ({
                         id: r.id,
+                        ...r.data,
                         loteId: r.lote_id,
                         propriedadeId: r.propriedade_id,
-                        ...r.data,
                         synced: true,
                     })))
                 }

@@ -131,9 +131,11 @@ const saveAnimal = async () => {
   saving.value = true
   try {
     const now = new Date().toISOString()
-    const count = await db.animais.where('loteId').equals(Number(form.loteId)).count()
-    const id = await db.animais.add({ ...form, ord: count + 1, createdAt: now, updatedAt: now, synced: false })
-    await addToQueue('create', 'animais', id as number, { ...form })
+    const loteId = Number(form.loteId)
+    const count = await db.animais.where('loteId').equals(loteId).count()
+    const dataToSave = { ...form, loteId, ord: count + 1, createdAt: now, updatedAt: now, synced: false }
+    const id = await db.animais.add(dataToSave)
+    await addToQueue('create', 'animais', id as number, dataToSave)
     appStore.notify('Animal salvo!', 'success')
     showModal.value = false
     await load()

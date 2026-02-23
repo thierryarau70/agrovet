@@ -27,9 +27,9 @@
         </h2>
 
         <div class="grid grid-cols-1 gap-3">
-          <div>
-            <label class="label">Proprietário *</label>
-            <input v-model="form.proprietario" class="input-field" placeholder="Nome do proprietário" required />
+          <div class="input-wrapper">
+            <input id="proprietario" v-model="form.proprietario" class="peer input-prime" placeholder="Proprietário *" required />
+            <label for="proprietario" class="label-prime">Proprietário *</label>
           </div>
           <div>
             <label class="label">Propriedade *</label>
@@ -78,7 +78,7 @@
               v-for="opt in descongelamentoOpts" :key="opt.value"
               type="button"
               :class="['flex-1 py-2 rounded-xl text-sm font-medium border transition-all', form.tipoDescongelamento === opt.value ? 'bg-brand-700 border-brand-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400']"
-              @click="form.tipoDescongelamento = opt.value"
+              @click="form.tipoDescongelamento = opt.value as 'comum' | 'eletronico'"
             >
               {{ opt.label }}
             </button>
@@ -93,7 +93,7 @@
               v-for="d in [7, 8, 9]" :key="d"
               type="button"
               :class="['flex-1 py-2 rounded-xl text-sm font-medium border transition-all', form.diasProgesterona === d ? 'bg-brand-700 border-brand-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400']"
-              @click="form.diasProgesterona = d"
+              @click="form.diasProgesterona = d as 7 | 8 | 9"
             >
               {{ d }} dias
             </button>
@@ -108,7 +108,7 @@
               v-for="opt in ['CE', 'BE']" :key="opt"
               type="button"
               :class="['flex-1 py-2 rounded-xl text-sm font-medium border transition-all', form.estimuloOvulatorio === opt ? 'bg-brand-700 border-brand-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400']"
-              @click="form.estimuloOvulatorio = opt"
+              @click="form.estimuloOvulatorio = opt as 'CE' | 'BE'"
             >
               {{ opt }}
             </button>
@@ -130,13 +130,13 @@
               <option v-for="l in lotesFiltered" :key="l.id" :value="l.id">{{ l.nome }}</option>
             </select>
           </div>
-          <div>
-            <label class="label">Categoria</label>
-            <input v-model="form.categoria" class="input-field" placeholder="Ex: Novilhas" />
+          <div class="input-wrapper">
+            <input id="categoria" v-model="form.categoria" class="peer input-prime" placeholder="Categoria" />
+            <label for="categoria" class="label-prime">Categoria</label>
           </div>
-          <div>
-            <label class="label">Retiro</label>
-            <input v-model="form.retiro" class="input-field" placeholder="Retiro..." />
+          <div class="input-wrapper">
+            <input id="retiro" v-model="form.retiro" class="peer input-prime" placeholder="Retiro" />
+            <label for="retiro" class="label-prime">Retiro</label>
           </div>
         </div>
       </div>
@@ -151,17 +151,17 @@
         <div class="bg-gray-800/50 rounded-xl p-3">
           <p class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Data Implante (D-0)</p>
           <div class="grid grid-cols-3 gap-2">
-            <div>
-              <label class="label text-[10px]">Início</label>
-              <input v-model="form.dataImplante" type="date" class="input-field text-sm py-2" />
+            <div class="input-wrapper">
+              <input id="d-inicio" v-model="form.dataImplante" type="date" class="peer input-prime py-2 text-sm" placeholder="Início" />
+              <label for="d-inicio" class="label-prime">Início</label>
             </div>
-            <div>
-              <label class="label text-[10px]">Término</label>
-              <input v-model="form.dataImplanteTermino" type="date" class="input-field text-sm py-2" />
+            <div class="input-wrapper">
+              <input id="d-term" v-model="form.dataImplanteTermino" type="date" class="peer input-prime py-2 text-sm" placeholder="Término" />
+              <label for="d-term" class="label-prime">Término</label>
             </div>
-            <div>
-              <label class="label text-[10px]">Touro</label>
-              <input v-model="form.touroImplante" class="input-field text-sm py-2" placeholder="Tag/Nome" />
+            <div class="input-wrapper">
+              <input id="d-touro" v-model="form.touroImplante" class="peer input-prime py-2 text-sm" placeholder="Touro" />
+              <label for="d-touro" class="label-prime">Touro</label>
             </div>
           </div>
         </div>
@@ -169,25 +169,25 @@
         <div class="bg-gray-800/50 rounded-xl p-3">
           <p class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Data Retirada</p>
           <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="label text-[10px]">Data</label>
-              <input v-model="form.dataRetirada" type="date" class="input-field text-sm py-2" />
+            <div class="input-wrapper">
+              <input id="d-ret" v-model="form.dataRetirada" type="date" class="peer input-prime py-2 text-sm" placeholder="Data" />
+              <label for="d-ret" class="label-prime">Data</label>
             </div>
-            <div>
-              <label class="label text-[10px]">Horário</label>
-              <input v-model="form.horarioRetirada" type="time" class="input-field text-sm py-2" />
+            <div class="input-wrapper">
+              <input id="h-ret" v-model="form.horarioRetirada" type="time" class="peer input-prime py-2 text-sm" placeholder="Horário" />
+              <label for="h-ret" class="label-prime">Horário</label>
             </div>
           </div>
         </div>
         <!-- 1ª IA e DG -->
         <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="label">Data 1ª IA</label>
-            <input v-model="form.dataPrimeiraIa" type="date" class="input-field" />
+          <div class="input-wrapper">
+            <input id="d1ia" v-model="form.dataPrimeiraIa" type="date" class="peer input-prime" placeholder="Data 1ª IA" />
+            <label for="d1ia" class="label-prime">Data 1ª IA</label>
           </div>
-          <div>
-            <label class="label">Data DG</label>
-            <input v-model="form.dataDg" type="date" class="input-field" />
+          <div class="input-wrapper">
+            <input id="ddg" v-model="form.dataDg" type="date" class="peer input-prime" placeholder="Data DG" />
+            <label for="ddg" class="label-prime">Data DG</label>
           </div>
         </div>
       </div>
@@ -412,14 +412,15 @@ const saveRecord = async () => {
   saving.value = true
   try {
     const now = new Date().toISOString()
-    const data = {
+    // Convert reactive proxy to plain object for IndexedDB (prevents DataCloneError)
+    const data = JSON.parse(JSON.stringify({
       ...form,
       propriedadeId: Number(form.propriedadeId) || 0,
       loteId: Number(form.loteId) || 0,
       createdAt: now,
       updatedAt: now,
       synced: false,
-    }
+    }))
 
     if (isNew.value) {
       const id = await db.iatfRecords.add(data)
