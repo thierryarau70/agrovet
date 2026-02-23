@@ -4,11 +4,13 @@ export default defineNuxtRouteMiddleware((to) => {
     const auth = useAuthStore()
     auth.restoreSession()
 
-    if (to.path !== '/login' && !auth.isLoggedIn) {
+    const publicRoutes = ['/login', '/register']
+
+    if (!publicRoutes.includes(to.path) && !auth.isLoggedIn) {
         return navigateTo('/login')
     }
 
-    if (to.path === '/login' && auth.isLoggedIn) {
+    if (publicRoutes.includes(to.path) && auth.isLoggedIn) {
         return navigateTo('/')
     }
 })

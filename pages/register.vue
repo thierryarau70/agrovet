@@ -1,25 +1,48 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-950 via-brand-950 to-gray-950 flex flex-col items-center justify-center px-4 py-10">
-    <!-- Logo / Brand -->
+    <!-- Logo -->
     <div class="mb-8 text-center animate-fade-in">
-      <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 shadow-2xl shadow-brand-900/50 mb-4">
-        <svg class="w-11 h-11 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 shadow-2xl shadow-brand-900/50 mb-4">
+        <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
       </div>
       <h1 class="text-3xl font-bold text-white">Agrovet</h1>
-      <p class="text-brand-400 text-sm mt-1">Sistema Veterinário IATF</p>
+      <p class="text-brand-400 text-sm mt-1">Criar nova conta</p>
     </div>
 
-    <!-- Login Card -->
+    <!-- Card -->
     <div class="w-full max-w-sm floating-card animate-slide-up">
-      <h2 class="text-xl font-semibold text-white mb-6">Entrar na conta</h2>
+      <h2 class="text-xl font-semibold text-white mb-6">Cadastro</h2>
 
-      <form @submit.prevent="handleLogin" class="space-y-4">
+      <!-- Success state -->
+      <Transition name="slide-up">
+        <div v-if="success" class="bg-brand-900/60 border border-brand-700 rounded-xl px-4 py-4 text-brand-200 text-sm">
+          <p class="font-semibold mb-1">✓ Conta criada com sucesso!</p>
+          <p class="text-brand-400 text-xs">Verifique seu e-mail para confirmar a conta, depois faça login.</p>
+          <NuxtLink to="/login" class="mt-3 btn-primary w-full btn-sm block text-center">Ir para o login</NuxtLink>
+        </div>
+      </Transition>
+
+      <form v-if="!success" @submit.prevent="handleRegister" class="space-y-4">
+        <!-- Name -->
+        <div>
+          <label for="name" class="label">Nome completo *</label>
+          <input
+            id="name"
+            v-model="form.name"
+            type="text"
+            autocomplete="name"
+            placeholder="Seu nome"
+            class="input-field"
+            required
+          />
+        </div>
+
         <!-- Email -->
         <div>
-          <label for="email" class="label">E-mail</label>
+          <label for="email" class="label">E-mail *</label>
           <input
             id="email"
             v-model="form.email"
@@ -33,22 +56,19 @@
 
         <!-- Password -->
         <div>
-          <label for="password" class="label">Senha</label>
+          <label for="password" class="label">Senha *</label>
           <div class="relative">
             <input
               id="password"
               v-model="form.password"
               :type="showPassword ? 'text' : 'password'"
-              autocomplete="current-password"
-              placeholder="••••••••"
+              autocomplete="new-password"
+              placeholder="Mínimo 6 caracteres"
               class="input-field pr-12"
+              minlength="6"
               required
             />
-            <button
-              type="button"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
-              @click="showPassword = !showPassword"
-            >
+            <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300" @click="showPassword = !showPassword">
               <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -60,6 +80,23 @@
           </div>
         </div>
 
+        <!-- Confirm Password -->
+        <div>
+          <label for="confirmPassword" class="label">Confirmar senha *</label>
+          <input
+            id="confirmPassword"
+            v-model="form.confirmPassword"
+            :type="showPassword ? 'text' : 'password'"
+            autocomplete="new-password"
+            placeholder="Repita a senha"
+            class="input-field"
+            required
+          />
+          <p v-if="form.confirmPassword && form.password !== form.confirmPassword" class="text-red-400 text-xs mt-1">
+            As senhas não coincidem.
+          </p>
+        </div>
+
         <!-- Error -->
         <Transition name="slide-up">
           <div v-if="error" class="bg-red-900/60 border border-red-800 rounded-xl px-4 py-3 text-red-300 text-sm">
@@ -68,20 +105,23 @@
         </Transition>
 
         <!-- Submit -->
-        <button type="submit" class="btn-primary w-full mt-2" :disabled="loading">
+        <button
+          type="submit"
+          class="btn-primary w-full mt-2"
+          :disabled="loading || form.password !== form.confirmPassword"
+        >
           <svg v-if="loading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          {{ loading ? 'Entrando...' : 'Entrar' }}
+          {{ loading ? 'Cadastrando...' : 'Criar conta' }}
         </button>
       </form>
 
-      <!-- Register link -->
       <div class="mt-5 text-center">
         <p class="text-gray-500 text-sm">
-          Não tem conta?
-          <NuxtLink to="/register" class="text-brand-400 hover:text-brand-300 font-medium">Cadastrar-se</NuxtLink>
+          Já tem conta?
+          <NuxtLink to="/login" class="text-brand-400 hover:text-brand-300 font-medium">Entrar</NuxtLink>
         </p>
       </div>
     </div>
@@ -94,22 +134,23 @@
 definePageMeta({ layout: false })
 
 const auth = useAuthStore()
-const router = useRouter()
 
-const form = reactive({ email: '', password: '' })
+const form = reactive({ name: '', email: '', password: '', confirmPassword: '' })
 const showPassword = ref(false)
 const loading = ref(false)
 const error = ref('')
+const success = ref(false)
 
-const handleLogin = async () => {
+const handleRegister = async () => {
+  if (form.password !== form.confirmPassword) return
   if (loading.value) return
   loading.value = true
   error.value = ''
   try {
-    await auth.login(form.email, form.password)
-    await router.push('/')
+    await auth.register(form.name, form.email, form.password)
+    success.value = true
   } catch (e: any) {
-    error.value = e.message || 'Erro ao entrar'
+    error.value = e.message || 'Erro ao cadastrar. Tente novamente.'
   } finally {
     loading.value = false
   }

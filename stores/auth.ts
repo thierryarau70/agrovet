@@ -1,14 +1,15 @@
 import { defineStore } from 'pinia'
+import { getSupabase } from '~/plugins/supabase.client'
 
-interface User {
-    id: number
+interface Profile {
+    id: string
     name: string
     email: string
     role: 'admin' | 'veterinario' | 'operador'
 }
 
 interface AuthState {
-    user: User | null
+    user: Profile | null
     token: string | null
     isAuthenticated: boolean
 }
@@ -23,32 +24,46 @@ export const useAuthStore = defineStore('auth', {
     getters: {
         currentUser: (state) => state.user,
         isLoggedIn: (state) => state.isAuthenticated && !!state.token,
+        isAdmin: (state) => state.user?.role === 'admin',
     },
 
     actions: {
         async login(email: string, password: string) {
-            // Simulate auth – replace with real API call
-            const validUsers = [
-                { id: 1, email: 'admin@agrovet.com', password: 'admin123', name: 'Administrador', role: 'admin' as const },
-                { id: 2, email: 'vet@agrovet.com', password: 'vet123', name: 'Dr. Veterinário', role: 'veterinario' as const },
-                { id: 3, email: 'op@agrovet.com', password: 'op123', name: 'Operador Campo', role: 'operador' as const },
-            ]
+            const supabase = getSupabase()
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+            if (error) throw new Error(error.message)
 
-            const found = validUsers.find(u => u.email === email && u.password === password)
-            if (!found) throw new Error('Email ou senha inválidos')
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', data.user.id)
+                .single()
 
-            const { password: _, ...user } = found
-            this.user = user
-            this.token = `mock-token-${user.id}-${Date.now()}`
+            if (profileError) throw new Error('Perfil não encontrado. Contacte o administrador.')
+
+            this.user = profile as Profile
+            this.token = data.session?.access_token || null
             this.isAuthenticated = true
 
             if (import.meta.client) {
-                localStorage.setItem('agrovet_token', this.token)
                 localStorage.setItem('agrovet_user', JSON.stringify(this.user))
+                localStorage.setItem('agrovet_token', this.token || '')
             }
         },
 
-        logout() {
+        async register(name: string, email: string, password: string) {
+            const supabase = getSupabase()
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: { data: { name } },
+            })
+            if (error) throw new Error(error.message)
+        },
+
+        async logout() {
+            const supabase = getSupabase()
+            await supabase.auth.signOut()
             this.user = null
             this.token = null
             this.isAuthenticated = false
@@ -58,15 +73,25 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
-        restoreSession() {
+        async restoreSession() {
             if (!import.meta.client) return
-            const token = localStorage.getItem('agrovet_token')
-            const userStr = localStorage.getItem('agrovet_user')
-            if (token && userStr) {
-                this.token = token
-                this.user = JSON.parse(userStr)
-                this.isAuthenticated = true
-            }
+            try {
+                const supabase = getSupabase()
+                const { data: { session } } = await supabase.auth.getSession()
+                if (!session) return
+
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single()
+
+                if (profile) {
+                    this.user = profile as Profile
+                    this.token = session.access_token
+                    this.isAuthenticated = true
+                }
+            } catch { }
         },
     },
 })
