@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  html {
+    @apply bg-gray-950 text-gray-100;
+    font-family: 'Inter', ui-sans-serif, system-ui;
+  }
+
+  body {
+    @apply min-h-screen bg-gray-950;
+  }
+
+  input, textarea, select {
+    @apply focus:outline-none;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-4;
+  }
+
+  .btn-primary {
+    @apply bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-gray-100 font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2;
+  }
+
+  .btn-danger {
+    @apply bg-red-700 hover:bg-red-800 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2;
+  }
+
+  .btn-sm {
+    @apply py-1.5 px-3 text-sm rounded-lg;
+  }
+
+  .input-field {
+    @apply w-full bg-gray-800 border border-gray-700 text-gray-100 rounded-xl px-4 py-3 placeholder-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors duration-200;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-gray-400 mb-1;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-brand-400 mb-3;
+  }
+
+  .table-header {
+    @apply bg-brand-900/50 text-brand-300 text-xs font-semibold uppercase tracking-wide px-3 py-2;
+  }
+
+  .table-cell {
+    @apply px-3 py-2 text-sm text-gray-300 border-b border-gray-800;
+  }
+
+  .table-input {
+    @apply w-full bg-transparent text-gray-100 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 rounded px-1 py-0.5;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-green {
+    @apply badge bg-brand-900 text-brand-300;
+  }
+
+  .badge-yellow {
+    @apply badge bg-yellow-900 text-yellow-300;
+  }
+
+  .badge-red {
+    @apply badge bg-red-900 text-red-300;
+  }
+
+  .nav-item {
+    @apply flex flex-col items-center gap-0.5 py-2 px-3 rounded-lg transition-colors duration-200 text-gray-500 hover:text-brand-400;
+  }
+
+  .nav-item.active {
+    @apply text-brand-400;
+  }
+
+  .page-container {
+    @apply max-w-2xl mx-auto px-4 pb-24 pt-4;
+  }
+
+  .floating-card {
+    @apply bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-5 shadow-2xl;
+  }
+
+  .divider {
+    @apply border-t border-gray-800 my-4;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #111827; }
+::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+
+/* Transitions */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.2s, transform 0.2s;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
