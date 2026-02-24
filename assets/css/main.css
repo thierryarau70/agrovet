@@ -392,14 +392,9 @@ body {
 }
 
 .ag-table thead th {
-  padding: 0.6rem 0.4rem;
-  border-bottom: 1px solid var(--ag-border);
-  border-right: 1px solid var(--ag-border);
+  padding: 0.75rem 0.5rem;
+  border-bottom: 2px solid var(--ag-border);
   text-align: center;
-}
-
-.ag-table thead th:last-child {
-  border-right: none;
 }
 
 .ag-table tbody tr {
@@ -412,44 +407,62 @@ body {
 }
 
 .ag-table tbody td {
-  padding: 0;
-  border-right: 1px solid var(--ag-border);
+  padding: 0.5rem 0.25rem;
   vertical-align: middle;
-}
-
-.ag-table tbody td:last-child {
-  border-right: none;
 }
 
 .ag-table tbody td input,
 .ag-table tbody td select {
   width: 100%;
   min-height: 36px;
-  background: transparent;
-  border: none;
+  background: var(--ag-surface);
+  border: 1.5px solid var(--ag-border);
+  border-radius: 0.5rem;
   outline: none;
   color: var(--ag-text);
-  padding: 0.3rem 0.4rem;
+  padding: 0.35rem 0.5rem;
   font-size: 0.75rem;
+  font-family: inherit;
   text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.app-dark .ag-table tbody td input,
+.app-dark .ag-table tbody td select {
+  background: #111827;
+  border-color: #2d3f52;
+}
+
+.ag-table tbody td input:hover,
+.ag-table tbody td select:hover {
+  border-color: var(--ag-border-strong);
 }
 
 .ag-table tbody td input:focus {
-  background: color-mix(in srgb, var(--ag-primary) 7%, transparent);
-  box-shadow: inset 0 0 0 1px var(--ag-primary);
+  border-color: var(--ag-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 15%, transparent);
 }
 
 .ag-dg-btn {
   width: 100%;
   min-height: 36px;
-  border: none;
+  border: 1.5px solid var(--ag-border);
+  border-radius: 0.5rem;
   cursor: pointer;
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   transition: all 0.15s;
-  background: transparent;
+  background: var(--ag-surface);
   color: var(--ag-text-3);
+  font-family: inherit;
+}
+
+.app-dark .ag-dg-btn {
+  background: #111827;
+  border-color: #2d3f52;
 }
 
 .ag-dg-btn:hover {
@@ -715,3 +728,56 @@ body {
   z-index: 10000 !important;
 }
 
+
+/* --- Polished .ag-input-neat --- */
+.ag-input-neat {
+  width: 100%;
+  background: var(--ag-surface);
+  border: 1.5px solid var(--ag-border);
+  border-radius: 0.5rem;
+  color: var(--ag-text);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+.ag-input-neat::placeholder { color: var(--ag-text-3); font-weight: 400; }
+.ag-input-neat:hover { border-color: var(--ag-border-strong); }
+.ag-input-neat:focus { border-color: var(--ag-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 15%, transparent); }
+.app-dark .ag-input-neat { background: #111827; border-color: #2d3f52; }
+.app-dark .ag-input-neat:hover { border-color: #3d5268; }
+.app-dark .ag-input-neat:focus { border-color: var(--ag-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 20%, transparent); }
+
+/* --- Polished Table inputs (override old rules) --- */
+.ag-table thead th { padding: 0.75rem 0.5rem; border-bottom: 2px solid var(--ag-border); border-right: none; text-align: center; }
+.ag-table tbody td { padding: 0.5rem 0.25rem; border-right: none; vertical-align: middle; }
+.ag-table tbody td input,
+.ag-table tbody td select {
+  width: 100%;
+  min-height: 36px;
+  background: var(--ag-surface);
+  border: 1.5px solid var(--ag-border);
+  border-radius: 0.5rem;
+  outline: none;
+  color: var(--ag-text);
+  padding: 0.35rem 0.5rem;
+  font-size: 0.75rem;
+  font-family: inherit;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.app-dark .ag-table tbody td input,
+.app-dark .ag-table tbody td select { background: #111827; border-color: #2d3f52; }
+.ag-table tbody td input:hover,
+.ag-table tbody td select:hover { border-color: var(--ag-border-strong); }
+.ag-table tbody td input:focus { border-color: var(--ag-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 15%, transparent); background: var(--ag-surface); }
+
+/* --- Polished DG button --- */
+.ag-dg-btn { border: 1.5px solid var(--ag-border); border-radius: 0.5rem; background: var(--ag-surface); font-family: inherit; }
+.app-dark .ag-dg-btn { background: #111827; border-color: #2d3f52; }
