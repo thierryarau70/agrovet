@@ -8,7 +8,7 @@
     >
       <template #actions>
         <ThemeToggle />
-        <Button size="small" :loading="saving" label="Salvar" @click="saveRecord" />
+        <Button size="small" :loading="saving" label="Salvar" @click="askSave" />
       </template>
     </PageHeader>
 
@@ -22,7 +22,7 @@
       <div style="display:grid; grid-template-columns:140px 1fr; border-bottom:1px solid var(--ag-border);">
         <!-- Logo -->
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1rem; border-right:1px solid var(--ag-border); background:color-mix(in srgb,var(--ag-primary) 5%,transparent);">
-          <svg style="width:3rem;height:3rem;color:var(--ag-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg style="width:2.25rem;height:2.25rem;color:var(--ag-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
           </svg>
           <span style="font-weight:800; font-size:0.875rem; color:var(--ag-primary); margin-top:0.375rem;">AGROVET</span>
@@ -60,12 +60,13 @@
           </div>
 
           <!-- Row: Vacina -->
-          <div class="iatf-row" style="padding:0.5rem 0.75rem; border-bottom:1px solid var(--ag-border); flex-wrap:wrap; gap:0.625rem;">
-            <span class="iatf-label" style="padding:0;">Vacina reprodutiva:</span>
-            <label class="ag-radio-label"><input type="radio" :value="true" v-model="form.vacinaReprodutiva" /><span>SIM</span></label>
-            <label class="ag-radio-label"><input type="radio" :value="false" v-model="form.vacinaReprodutiva" /><span>NÃO</span></label>
+          <div style="margin-top:0.75rem;">
+            <p style="font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin:0 0 0.25rem;">Vacina Reprodutiva?</p>
+            <div style="display:flex; gap:1rem;">
+              <label class="ag-radio-label"><input type="radio" :value="true" v-model="form.vacinaReprodutiva" /><span>SIM</span></label>
+              <label class="ag-radio-label"><input type="radio" :value="false" v-model="form.vacinaReprodutiva" /><span>NÃO</span></label>
+            </div>
           </div>
-
           <!-- Row: Descongelamento -->
           <div class="iatf-row" style="padding:0.5rem 0.75rem; border-bottom:1px solid var(--ag-border); flex-wrap:wrap; gap:0.625rem;">
             <span class="iatf-label" style="padding:0;">Descongelamento:</span>
@@ -244,10 +245,23 @@
       <Button
         :loading="saving"
         label="💾 Salvar Protocolo"
-        @click="saveRecord"
+        @click="askSave"
         style="pointer-events:all; box-shadow:0 4px 16px rgba(22,163,74,.4); padding:0.75rem 2rem; font-size:1rem;"
       />
     </div>
+
+    <!-- Confirm Save -->
+    <AppConfirmModal
+      v-model="confirmSave"
+      :title="isNew ? 'Salvar novo protocolo?' : 'Atualizar protocolo?'"
+      :message="isNew
+        ? `Deseja criar um novo protocolo IATF para ${form.propriedade || 'a fazenda selecionada'} com ${form.animais.length} animal(is)?`
+        : `Deseja salvar as alterações no protocolo de ${form.propriedade || 'a fazenda selecionada'} (${form.animais.length} animais)?`
+      "
+      type="success"
+      :confirm-label="isNew ? 'Criar Protocolo' : 'Salvar Alterações'"
+      @confirm="saveRecord"
+    />
   </div>
 </template>
 
@@ -265,6 +279,12 @@ const { addToQueue } = useSync()
 
 const isNew = computed(() => route.params.id === 'novo')
 const saving = ref(false)
+const confirmSave = ref(false)
+
+const askSave = () => {
+  if (!form.proprietario) { appStore.notify('Preencha o proprietário.', 'error'); return }
+  confirmSave.value = true
+}
 
 const propriedades = ref<any[]>([])
 const lotes = ref<any[]>([])

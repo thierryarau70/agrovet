@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { getSupabase } from '~/plugins/supabase.client'
 
+const SESSION_DURATION_MS = 2 * 60 * 60 * 1000 // 2 hours in milliseconds
+
 interface Profile {
     id: string
     name: string
@@ -28,6 +30,26 @@ export const useAuthStore = defineStore('auth', {
     },
 
     actions: {
+        /** Persists auth data to localStorage with a 2-hour expiry timestamp. */
+        _saveToStorage(user: Profile, token: string) {
+            if (!import.meta.client) return
+            const expiry = Date.now() + SESSION_DURATION_MS
+            localStorage.setItem('agrovet_user', JSON.stringify(user))
+            localStorage.setItem('agrovet_token', token)
+            localStorage.setItem('agrovet_token_expiry', String(expiry))
+        },
+
+        /** Refreshes the session expiry (call on user activity). */
+        refreshSessionExpiry() {
+            if (!import.meta.client) return
+            const token = localStorage.getItem('agrovet_token')
+            const user = localStorage.getItem('agrovet_user')
+            if (token && user && this.isAuthenticated) {
+                const expiry = Date.now() + SESSION_DURATION_MS
+                localStorage.setItem('agrovet_token_expiry', String(expiry))
+            }
+        },
+
         async login(email: string, password: string) {
             const supabase = getSupabase()
             const { data, error } = await supabase.auth.signInWithPassword({ email, password })
@@ -46,8 +68,8 @@ export const useAuthStore = defineStore('auth', {
             this.isAuthenticated = true
 
             if (import.meta.client) {
-                localStorage.setItem('agrovet_user', JSON.stringify(this.user))
-                localStorage.setItem('agrovet_token', this.token || '')
+                // Save with 2-hour expiry
+                this._saveToStorage(this.user!, this.token || '')
 
                 // Clear local DB and pull fresh data for this user
                 const { db } = await import('~/plugins/dexie.client')
@@ -83,6 +105,7 @@ export const useAuthStore = defineStore('auth', {
             if (import.meta.client) {
                 localStorage.removeItem('agrovet_token')
                 localStorage.removeItem('agrovet_user')
+                localStorage.removeItem('agrovet_token_expiry')
 
                 // Wipe all local data for privacy and multi-user support
                 const { db } = await import('~/plugins/dexie.client')
@@ -99,6 +122,7 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
+        /** Async background restore via Supabase (not used for route guarding). */
         async restoreSession() {
             if (!import.meta.client) return
             try {
@@ -116,6 +140,8 @@ export const useAuthStore = defineStore('auth', {
                     this.user = profile as Profile
                     this.token = session.access_token
                     this.isAuthenticated = true
+                    // Refresh the localStorage expiry since Supabase confirmed it's valid
+                    this._saveToStorage(this.user!, this.token!)
                 }
             } catch { }
         },

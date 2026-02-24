@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @click="onUserActivity" @keydown="onUserActivity" @touchstart="onUserActivity">
     <OfflineBanner />
     <AppNotifications />
     <NuxtLayout>
@@ -17,22 +17,20 @@ const appStore = useAppStore()
 const authStore = useAuthStore()
 const { isOnline } = useNetwork()
 
-// Dark mode state — persisted in localStorage
+// ─── Dark mode (persisted in localStorage) ───────────────────────
 const isDark = ref(false)
 
 onMounted(() => {
-  // restore preference from localStorage
   const saved = localStorage.getItem('ag-theme')
   isDark.value = saved ? saved === 'dark' : false
   applyTheme(isDark.value)
 })
 
 function applyTheme(dark: boolean) {
-  const html = document.documentElement
   if (dark) {
-    html.classList.add('app-dark')
+    document.documentElement.classList.add('app-dark')
   } else {
-    html.classList.remove('app-dark')
+    document.documentElement.classList.remove('app-dark')
   }
 }
 
@@ -42,15 +40,28 @@ function toggleTheme() {
   localStorage.setItem('ag-theme', isDark.value ? 'dark' : 'light')
 }
 
-// Expose globally so any component can call it
 provide('toggleTheme', toggleTheme)
 provide('isDark', isDark)
 
-// Sync + update count on app start
+// ─── Session activity — refresh 2h expiry on any user interaction ─
+let activityThrottle: ReturnType<typeof setTimeout> | null = null
+function onUserActivity() {
+  if (activityThrottle) return
+  // Throttle to at most once every 5 minutes
+  activityThrottle = setTimeout(() => {
+    activityThrottle = null
+  }, 5 * 60 * 1000)
+  authStore.refreshSessionExpiry()
+}
+
+// ─── Sync on mount ───────────────────────────────────────────────
 onMounted(async () => {
   await appStore.updateSyncCount()
 
   if (authStore.isLoggedIn) {
+    // Background async Supabase session refresh (non-blocking for route guard)
+    authStore.restoreSession().catch(() => {})
+
     const { useSync } = await import('~/composables/useSync')
     const { pullFromServer, syncToServer } = useSync()
     pullFromServer()

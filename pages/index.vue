@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <!-- Header -->
     <div class="ag-dashboard-header">
@@ -15,7 +15,7 @@
             <ThemeToggle />
             <button
               style="display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:0.5rem; border:1px solid var(--ag-border); background:var(--ag-bg-2); color:var(--ag-text-2); cursor:pointer; transition:all .2s;"
-              @click="handleLogout"
+              @click="confirmLogout = true"
               title="Sair"
             >
               <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,6 +154,16 @@
       </div>
     </div>
   </div>
+
+  <!-- Logout confirm -->
+  <AppConfirmModal
+    v-model="confirmLogout"
+    title="Sair da conta?"
+    message="Você será desconectado. Todos os dados salvos localmente permanecem intactos."
+    type="warning"
+    confirm-label="Sair"
+    @confirm="handleLogout"
+  />
 </template>
 
 <script setup lang="ts">
@@ -167,7 +177,7 @@ const appStore = useAppStore()
 const { isOnline } = useNetwork()
 
 const stats = ref([
-  { label: 'Fazendas', value: 0, icon: '🏡', badge: 'Total', route: '/propriedades' },
+  { label: 'Fazendas', value: 0, icon: '🏠', badge: 'Total', route: '/propriedades' },
   { label: 'Lotes', value: 0, icon: '📦', badge: 'Ativos', route: '/lotes' },
   { label: 'Protocolos IATF', value: 0, icon: '💉', badge: 'Total', route: '/iatf' },
   { label: 'Animais', value: 0, icon: '🐄', badge: 'Total', route: '/animais' },
@@ -188,6 +198,8 @@ const chartOptionsBar = { responsive: true, maintainAspectRatio: false, plugins:
 
 const recentIatf = ref<any[]>([])
 const pendingEvents = ref<{ date: Date; type: string; description: string; daysLeft: number }[]>([])
+
+const confirmLogout = ref(false)
 
 const handleLogout = async () => {
   await auth.logout()
@@ -273,3 +285,4 @@ onMounted(async () => {
   } catch {}
 })
 </script>
+

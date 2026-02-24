@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <PageHeader title="Protocolos IATF" :subtitle="`${records.length} protocolo(s)`" back="/">
       <template #actions>
@@ -52,3 +52,4 @@ onMounted(async () => {
   records.value = await db.iatfRecords.orderBy('createdAt').reverse().toArray()
 })
 </script>
+

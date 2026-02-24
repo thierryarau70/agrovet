@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="ag-login-bg">
     <!-- Logo -->
     <div style="text-align:center; margin-bottom:2rem;">
@@ -105,3 +105,4 @@ const handleLogin = async () => {
   }
 }
 </script>
+

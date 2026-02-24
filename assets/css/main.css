@@ -39,6 +39,108 @@
   --ag-primary-light: #14532d;
 }
 
+/* ─── Native select + option dark mode fix ─── */
+/* Option elements are OS-rendered on Windows — force colors explicitly */
+select {
+  background-color: var(--ag-bg-2);
+  color: var(--ag-text);
+}
+
+select option {
+  background-color: var(--ag-bg-2);
+  color: var(--ag-text);
+}
+
+/* Extra specificity for inside .app-dark */
+.app-dark select {
+  background-color: #1a2330;
+  color: #f0f6ff;
+}
+
+.app-dark select option {
+  background-color: #1a2330;
+  color: #f0f6ff;
+}
+
+.app-dark select option:hover,
+.app-dark select option:checked {
+  background-color: #14532d;
+  color: #f0f6ff;
+}
+
+/* ─── PrimeVue Select panel (dropdown list) dark mode ─── */
+.app-dark .p-select-list,
+.app-dark .p-select-overlay,
+.app-dark .p-listbox,
+.app-dark .p-dropdown-panel {
+  background: #1a2330 !important;
+  border-color: #1e2d3d !important;
+  color: #f0f6ff !important;
+}
+
+.app-dark .p-select-option,
+.app-dark .p-listbox-option,
+.app-dark .p-dropdown-item {
+  color: #f0f6ff !important;
+  background: transparent !important;
+}
+
+.app-dark .p-select-option:hover,
+.app-dark .p-listbox-option:hover,
+.app-dark .p-dropdown-item:hover {
+  background: #14532d !important;
+  color: #f0f6ff !important;
+}
+
+.app-dark .p-select-option.p-selected,
+.app-dark .p-listbox-option.p-selected {
+  background: rgba(22, 163, 74, 0.2) !important;
+  color: #4ade80 !important;
+}
+
+/* PrimeVue inputs dark mode */
+.app-dark .p-inputtext,
+.app-dark .p-password-input,
+.app-dark .p-select-label,
+.app-dark .p-select {
+  background: #111827 !important;
+  color: #f0f6ff !important;
+  border-color: #2d3f52 !important;
+}
+
+.app-dark .p-inputtext::placeholder,
+.app-dark .p-password-input::placeholder {
+  color: #4b5c6b !important;
+}
+
+/* PrimeVue Password toggle icon */
+.app-dark .p-password-toggle-mask-icon {
+  color: #94a3b8 !important;
+}
+
+/* PrimeVue Dialog dark mode */
+.app-dark .p-dialog,
+.app-dark .p-dialog-header,
+.app-dark .p-dialog-content,
+.app-dark .p-dialog-footer {
+  background: #1a2330 !important;
+  color: #f0f6ff !important;
+  border-color: #1e2d3d !important;
+}
+
+.app-dark .p-dialog-title {
+  color: #f0f6ff !important;
+}
+
+.app-dark .p-dialog-header-close {
+  color: #94a3b8 !important;
+}
+
+.app-dark .p-dialog-header-close:hover {
+  background: #2d3f52 !important;
+  color: #f0f6ff !important;
+}
+
 html,
 body {
   background: var(--ag-bg);

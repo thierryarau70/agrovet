@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <PageHeader title="Lotes" :subtitle="`${lotes.length} cadastrado(s)`" back="/">
       <template #actions>
@@ -21,8 +21,12 @@
           </div>
           <div style="display:flex; align-items:center; gap:0.5rem;">
             <span :class="['ag-badge', l.synced ? 'ag-badge-green' : 'ag-badge-yellow']">{{ l.synced ? '✓' : '⏳' }}</span>
-            <button style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem;" @click="deleteLote(l.id!)"
-              onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--ag-text-3)'">
+            <button
+              style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem;"
+              @click="askDelete(l)"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--ag-text-3)'"
+            >
               <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
@@ -32,8 +36,9 @@
       </div>
     </div>
 
+    <!-- Criar Modal -->
     <AppModal v-model="showModal" title="Novo Lote">
-      <form @submit.prevent="saveLote" style="display:flex; flex-direction:column; gap:1rem;">
+      <form @submit.prevent="askCreate" style="display:flex; flex-direction:column; gap:1rem;">
         <div>
           <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Fazenda *</label>
           <Select v-model="form.propriedadeId" :options="propriedades" optionLabel="nome" optionValue="id" placeholder="Selecione..." style="width:100%;" required />
@@ -54,10 +59,30 @@
       <template #footer>
         <div style="display:flex; gap:0.75rem;">
           <Button label="Cancelar" severity="secondary" outlined style="flex:1;" @click="showModal = false" />
-          <Button label="Salvar" :loading="saving" style="flex:1;" @click="saveLote" />
+          <Button label="Salvar" style="flex:1;" @click="askCreate" />
         </div>
       </template>
     </AppModal>
+
+    <!-- Confirmação Criar -->
+    <AppConfirmModal
+      v-model="confirmCreate"
+      title="Salvar Lote?"
+      :message="`Deseja cadastrar o lote &quot;${form.nome}&quot; (${form.categoria})?`"
+      type="success"
+      confirm-label="Cadastrar"
+      @confirm="saveLote"
+    />
+
+    <!-- Confirmação Deletar -->
+    <AppConfirmModal
+      v-model="confirmDelete"
+      title="Excluir Lote?"
+      :message="`Tem certeza que deseja excluir o lote &quot;${targetToDelete?.nome}&quot;? Esta ação não pode ser desfeita.`"
+      type="danger"
+      confirm-label="Excluir"
+      @confirm="doDelete"
+    />
   </div>
 </template>
 
@@ -78,6 +103,10 @@ const lotes = ref<any[]>([])
 const propriedades = ref<any[]>([])
 const form = reactive({ propriedadeId: '' as any, nome: '', categoria: '', retiro: '' })
 
+const confirmCreate = ref(false)
+const confirmDelete = ref(false)
+const targetToDelete = ref<any>(null)
+
 const getNomeFazenda = (id: number) => propriedades.value.find(p => p.id === id)?.nome ?? '—'
 
 const load = async () => {
@@ -90,25 +119,39 @@ const openModal = () => {
   showModal.value = true
 }
 
+const askCreate = () => {
+  if (!form.propriedadeId) { appStore.notify('Selecione uma fazenda.', 'error'); return }
+  if (!form.nome) { appStore.notify('Informe o nome do lote.', 'error'); return }
+  if (!form.categoria) { appStore.notify('Selecione a categoria.', 'error'); return }
+  confirmCreate.value = true
+}
+
 const saveLote = async () => {
-  if (!form.propriedadeId || !form.nome || !form.categoria) return
   saving.value = true
+  showModal.value = false
   try {
     const now = new Date().toISOString()
     const dataToSave = { ...form, propriedadeId: Number(form.propriedadeId), createdAt: now, updatedAt: now, synced: false }
     const id = await db.lotes.add(dataToSave)
     await addToQueue('create', 'lotes', id as number, dataToSave)
     appStore.notify('Lote salvo!', 'success')
-    showModal.value = false
     await load()
   } finally { saving.value = false }
 }
 
-const deleteLote = async (id: number) => {
-  if (!confirm('Excluir este lote?')) return
-  await db.lotes.delete(id)
+const askDelete = (l: any) => {
+  targetToDelete.value = l
+  confirmDelete.value = true
+}
+
+const doDelete = async () => {
+  if (!targetToDelete.value) return
+  await db.lotes.delete(targetToDelete.value.id)
   await load()
+  appStore.notify('Lote excluído.', 'info')
+  targetToDelete.value = null
 }
 
 onMounted(load)
 </script>
+

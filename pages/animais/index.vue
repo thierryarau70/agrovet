@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <PageHeader title="Animais" :subtitle="`${animais.length} cadastrado(s)`" back="/">
       <template #actions>
@@ -26,12 +26,16 @@
           </div>
           <div style="display:flex; align-items:center; gap:0.5rem;">
             <span v-if="a.status_prenhez" :class="['ag-badge', a.status_prenhez === 'Prenhe' ? 'ag-badge-green' : '']"
-              :style="a.status_prenhez !== 'Prenhe' ? 'background:color-mix(in srgb,#dc2626 12%,transparent);color:#dc2626;border-color:color-mix(in srgb,#dc2626 30%,transparent);' : ''">
+              :style="a.status_prenhez !== 'Prenhe' ? 'background:rgba(220,38,38,.12);color:#dc2626;border-color:rgba(220,38,38,.3);' : ''">
               {{ a.status_prenhez }}
             </span>
             <span :class="['ag-badge', a.synced ? 'ag-badge-green' : 'ag-badge-yellow']">{{ a.synced ? '✓' : '⏳' }}</span>
-            <button style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem;" @click="deleteAnimal(a.id!)"
-              onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--ag-text-3)'">
+            <button
+              style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem;"
+              @click="askDelete(a)"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--ag-text-3)'"
+            >
               <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
@@ -41,8 +45,9 @@
       </div>
     </div>
 
+    <!-- Criar Modal -->
     <AppModal v-model="showModal" title="Novo Animal">
-      <form @submit.prevent="saveAnimal" style="display:flex; flex-direction:column; gap:1rem;">
+      <form @submit.prevent="askCreate" style="display:flex; flex-direction:column; gap:1rem;">
         <div>
           <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Lote *</label>
           <Select v-model="form.loteId" :options="lotes" :option-label="(l) => `${l.nome} (${getNomeFazenda(l.propriedadeId)})`" optionValue="id" placeholder="Selecione o lote..." style="width:100%;" required />
@@ -63,10 +68,30 @@
       <template #footer>
         <div style="display:flex; gap:0.75rem;">
           <Button label="Cancelar" severity="secondary" outlined style="flex:1;" @click="showModal = false" />
-          <Button label="Salvar" :loading="saving" style="flex:1;" @click="saveAnimal" />
+          <Button label="Salvar" style="flex:1;" @click="askCreate" />
         </div>
       </template>
     </AppModal>
+
+    <!-- Confirmação Criar -->
+    <AppConfirmModal
+      v-model="confirmCreate"
+      title="Cadastrar Animal?"
+      :message="`Deseja cadastrar a fêmea &quot;${form.femea}&quot; (${form.categoria})?`"
+      type="success"
+      confirm-label="Cadastrar"
+      @confirm="saveAnimal"
+    />
+
+    <!-- Confirmação Deletar -->
+    <AppConfirmModal
+      v-model="confirmDelete"
+      title="Excluir Animal?"
+      :message="`Tem certeza que deseja excluir a fêmea &quot;${targetToDelete?.femea}&quot;? Esta ação não pode ser desfeita.`"
+      type="danger"
+      confirm-label="Excluir"
+      @confirm="doDelete"
+    />
   </div>
 </template>
 
@@ -91,6 +116,10 @@ const search = ref('')
 
 const form = reactive({ loteId: '' as any, femea: '', categoria: 'Novilha', observacao: '' })
 
+const confirmCreate = ref(false)
+const confirmDelete = ref(false)
+const targetToDelete = ref<any>(null)
+
 const filtered = computed(() =>
   animais.value.filter(a =>
     !search.value ||
@@ -113,9 +142,15 @@ const openModal = () => {
   showModal.value = true
 }
 
+const askCreate = () => {
+  if (!form.loteId) { appStore.notify('Selecione um lote.', 'error'); return }
+  if (!form.femea) { appStore.notify('Informe a identificação da fêmea.', 'error'); return }
+  confirmCreate.value = true
+}
+
 const saveAnimal = async () => {
-  if (!form.loteId || !form.femea) return
   saving.value = true
+  showModal.value = false
   try {
     const now = new Date().toISOString()
     const loteId = Number(form.loteId)
@@ -124,16 +159,23 @@ const saveAnimal = async () => {
     const id = await db.animais.add(dataToSave)
     await addToQueue('create', 'animais', id as number, dataToSave)
     appStore.notify('Animal salvo!', 'success')
-    showModal.value = false
     await load()
   } finally { saving.value = false }
 }
 
-const deleteAnimal = async (id: number) => {
-  if (!confirm('Excluir este animal?')) return
-  await db.animais.delete(id)
+const askDelete = (a: any) => {
+  targetToDelete.value = a
+  confirmDelete.value = true
+}
+
+const doDelete = async () => {
+  if (!targetToDelete.value) return
+  await db.animais.delete(targetToDelete.value.id)
   await load()
+  appStore.notify('Animal excluído.', 'info')
+  targetToDelete.value = null
 }
 
 onMounted(load)
 </script>
+

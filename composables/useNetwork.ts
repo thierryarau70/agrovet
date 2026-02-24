@@ -1,26 +1,11 @@
 // composables/useNetwork.ts
-// Composable global para monitorar o status de conexão
 export const useNetwork = () => {
-    const isOnline = ref(true)
+    const isOnline = ref(typeof navigator !== 'undefined' ? navigator.onLine : true)
 
-    onMounted(() => {
-        isOnline.value = navigator.onLine
-
-        const handleOnline = () => {
-            isOnline.value = true
-        }
-        const handleOffline = () => {
-            isOnline.value = false
-        }
-
-        window.addEventListener('online', handleOnline)
-        window.addEventListener('offline', handleOffline)
-
-        onUnmounted(() => {
-            window.removeEventListener('online', handleOnline)
-            window.removeEventListener('offline', handleOffline)
-        })
-    })
+    if (import.meta.client) {
+        useEventListener(window, 'online', () => { isOnline.value = true })
+        useEventListener(window, 'offline', () => { isOnline.value = false })
+    }
 
     return { isOnline }
 }
