@@ -12,226 +12,241 @@
       </template>
     </PageHeader>
 
-    <!-- ═══ PLANILHA ═══ -->
-    <div class="iatf-spreadsheet" style="margin:0.75rem; border-radius:0.625rem;">
+    <!-- ═══ PLANILHA CARDS ═══ -->
+    <div style="display:flex; flex-direction:column; gap:1rem; padding:0 1rem;">
+      
+      <!-- Card 1: Info Gerais -->
+      <div class="ag-card">
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--ag-border); padding-bottom:0.75rem;">
+          <div style="display:flex; align-items:center; justify-content:center; width:2rem; height:2rem; border-radius:0.5rem; background:var(--ag-primary-light); color:var(--ag-primary);">
+            <svg style="width:1.25rem;height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16H3m14 0h2m-2 0h-5m-9 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          </div>
+          <h2 style="font-size:1rem; font-weight:700; color:var(--ag-text); margin:0;">Informações Gerais</h2>
+        </div>
+        
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Proprietário</label>
+            <InputText v-model="form.proprietario" placeholder="Digite..." style="width:100%;" />
+          </div>
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Propriedade</label>
+            <Select v-model="form.propriedadeId" :options="propriedades" optionLabel="nome" optionValue="id" @change="onFazendaChange" placeholder="Selecione..." style="width:100%;" />
+          </div>
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Lote</label>
+            <Select v-model="form.loteId" :options="lotesFiltered" optionLabel="nome" optionValue="id" @change="onLoteChange" placeholder="Selecione..." style="width:100%;" :disabled="!form.propriedadeId" />
+          </div>
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Categoria</label>
+            <InputText v-model="form.categoria" placeholder="Ex: Novilhas" style="width:100%;" />
+          </div>
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Retiro</label>
+            <InputText v-model="form.retiro" placeholder="Pasto 1" style="width:100%;" />
+          </div>
+        </div>
+      </div>
 
-      <!-- Green Header Bar -->
-      <div class="iatf-header-bar">Planilha de IATF</div>
-
-      <!-- Logo + Info Grid -->
-      <div style="display:grid; grid-template-columns:140px 1fr; border-bottom:1px solid var(--ag-border);">
-        <!-- Logo -->
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1rem; border-right:1px solid var(--ag-border); background:color-mix(in srgb,var(--ag-primary) 5%,transparent);">
-          <svg style="width:2.25rem;height:2.25rem;color:var(--ag-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-          </svg>
-          <span style="font-weight:800; font-size:0.875rem; color:var(--ag-primary); margin-top:0.375rem;">AGROVET</span>
-          <span style="font-size:0.6rem; color:var(--ag-text-3); letter-spacing:0.1em;">REPRODUÇÃO</span>
+      <!-- Card 2: Detalhes do Protocolo -->
+      <div class="ag-card">
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--ag-border); padding-bottom:0.75rem;">
+          <div style="display:flex; align-items:center; justify-content:center; width:2rem; height:2rem; border-radius:0.5rem; background:var(--ag-primary-light); color:var(--ag-primary);">
+            <svg style="width:1.25rem;height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+          </div>
+          <h2 style="font-size:1rem; font-weight:700; color:var(--ag-text); margin:0;">Manejo e Tratamento</h2>
         </div>
 
-        <!-- Right side info -->
-        <div style="display:flex; flex-direction:column;">
-          <!-- Row: Proprietário + Propriedade -->
-          <div style="display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--ag-border);">
-            <div class="iatf-row" style="border-right:1px solid var(--ag-border);">
-              <span class="iatf-label">Proprietário:</span>
-              <div class="iatf-value" style="flex:1;">
-                <input v-model="form.proprietario" placeholder="Digite..." />
-              </div>
-            </div>
-            <div class="iatf-row">
-              <span class="iatf-label">Propriedade:</span>
-              <div class="iatf-value" style="flex:1;">
-                <select v-model="form.propriedadeId" @change="onFazendaChange" style="width:100%; background:transparent; border:none; outline:none; color:var(--ag-text); padding:0.5rem 0.75rem; font-size:0.8125rem; cursor:pointer;">
-                  <option value="" disabled>Selecione...</option>
-                  <option v-for="p in propriedades" :key="p.id" :value="p.id">{{ p.nome }}</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Row: Inseminação -->
-          <div class="iatf-row" style="padding:0.5rem 0.75rem; border-bottom:1px solid var(--ag-border); flex-wrap:wrap; gap:0.625rem;">
-            <span class="iatf-label" style="padding:0;">Inseminação:</span>
-            <label v-for="tipo in tiposInseminacao" :key="tipo" class="ag-radio-label">
-              <input type="radio" :value="tipo" v-model="form.tipoInseminacao" />
-              <span>{{ tipo }}</span>
-            </label>
-          </div>
-
-          <!-- Row: Vacina -->
-          <div style="margin-top:0.75rem;">
-            <p style="font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin:0 0 0.25rem;">Vacina Reprodutiva?</p>
-            <div style="display:flex; gap:1rem;">
-              <label class="ag-radio-label"><input type="radio" :value="true" v-model="form.vacinaReprodutiva" /><span>SIM</span></label>
-              <label class="ag-radio-label"><input type="radio" :value="false" v-model="form.vacinaReprodutiva" /><span>NÃO</span></label>
-            </div>
-          </div>
-          <!-- Row: Descongelamento -->
-          <div class="iatf-row" style="padding:0.5rem 0.75rem; border-bottom:1px solid var(--ag-border); flex-wrap:wrap; gap:0.625rem;">
-            <span class="iatf-label" style="padding:0;">Descongelamento:</span>
-            <label v-for="opt in descongelamentoOpts" :key="opt.value" class="ag-radio-label">
-              <input type="radio" :value="opt.value" v-model="form.tipoDescongelamento" />
-              <span>{{ opt.label }}</span>
-            </label>
-          </div>
-
-          <!-- Row: Progesterona + Estímulo -->
-          <div style="display:grid; grid-template-columns:1fr 1fr;">
-            <div class="iatf-row" style="padding:0.5rem 0.75rem; border-right:1px solid var(--ag-border); flex-wrap:wrap; gap:0.625rem;">
-              <span class="iatf-label" style="padding:0;">Progesterona:</span>
-              <label v-for="d in [7, 8, 9]" :key="d" class="ag-radio-label">
-                <input type="radio" :value="d" v-model="form.diasProgesterona" />
-                <span>{{ d }}d</span>
-              </label>
-            </div>
-            <div class="iatf-row" style="padding:0.5rem 0.75rem; flex-wrap:wrap; gap:0.625rem;">
-              <span class="iatf-label" style="padding:0;">Estímulo:</span>
-              <label v-for="e in ['CE','BE']" :key="e" class="ag-radio-label">
-                <input type="radio" :value="e" v-model="form.estimuloOvulatorio" />
-                <span>{{ e }}</span>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.5rem;">Inseminação</label>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+              <label v-for="tipo in tiposInseminacao" :key="tipo" class="ag-radio-box" :class="{ active: form.tipoInseminacao === tipo }">
+                <input type="radio" :value="tipo" v-model="form.tipoInseminacao" style="display:none;" />
+                {{ tipo }}
               </label>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Lote / Categoria / Retiro Row -->
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; border-bottom:1px solid var(--ag-border);">
-        <div class="iatf-row" style="border-right:1px solid var(--ag-border);">
-          <span class="iatf-label">LOTE:</span>
-          <div class="iatf-value" style="flex:1;">
-            <select v-model="form.loteId" @change="onLoteChange" style="width:100%; background:transparent; border:none; outline:none; color:var(--ag-text); padding:0.5rem 0.75rem; font-size:0.8125rem;">
-              <option value="" disabled>Selecione...</option>
-              <option v-for="l in lotesFiltered" :key="l.id" :value="l.id">{{ l.nome }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="iatf-row" style="border-right:1px solid var(--ag-border);">
-          <span class="iatf-label">CATEGORIA:</span>
-          <div class="iatf-value" style="flex:1;"><input v-model="form.categoria" placeholder="Ex: Novilhas" /></div>
-        </div>
-        <div class="iatf-row">
-          <span class="iatf-label">RETIRO:</span>
-          <div class="iatf-value" style="flex:1;"><input v-model="form.retiro" placeholder="Ex: Pasto 1" /></div>
-        </div>
-      </div>
-
-      <!-- Dates Row -->
-      <div style="display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid var(--ag-border);">
-        <!-- D-0 Implante -->
-        <div style="border-right:1px solid var(--ag-border); padding:0.5rem;">
-          <div style="font-size:0.6875rem; font-weight:700; color:var(--ag-text-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:0.375rem;">DATA IMPLANTE (D-0)</div>
-          <div style="display:flex; flex-direction:column; gap:0.25rem;">
-            <div style="display:flex; align-items:center; gap:0.25rem;">
-              <span style="font-size:0.7rem; color:var(--ag-text-3); width:24px;">Ini:</span>
-              <input type="date" v-model="form.dataImplante" style="flex:1; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.75rem; padding:0.2rem;" />
-            </div>
-            <div style="display:flex; align-items:center; gap:0.25rem;">
-              <span style="font-size:0.7rem; color:var(--ag-text-3); width:24px;">Fim:</span>
-              <input type="date" v-model="form.dataImplanteTermino" style="flex:1; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.75rem; padding:0.2rem;" />
-            </div>
-            <div style="display:flex; align-items:center; gap:0.25rem;">
-              <span style="font-size:0.7rem; color:var(--ag-text-3); width:24px;">♂:</span>
-              <input v-model="form.touroImplante" placeholder="Nome/ID" style="flex:1; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.75rem; padding:0.2rem;" />
+          
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.5rem;">Vacina Reprodutiva?</label>
+            <div style="display:flex; gap:0.5rem;">
+              <label class="ag-radio-box" :class="{ active: form.vacinaReprodutiva === true }">
+                <input type="radio" :value="true" v-model="form.vacinaReprodutiva" style="display:none;" />
+                SIM
+              </label>
+              <label class="ag-radio-box" :class="{ active: form.vacinaReprodutiva === false }">
+                <input type="radio" :value="false" v-model="form.vacinaReprodutiva" style="display:none;" />
+                NÃO
+              </label>
             </div>
           </div>
-        </div>
-        <!-- Retirada D-8 -->
-        <div style="border-right:1px solid var(--ag-border); padding:0.5rem;">
-          <div style="font-size:0.6875rem; font-weight:700; color:var(--ag-text-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:0.375rem;">DATA RETIRADA</div>
-          <div style="display:flex; flex-direction:column; gap:0.25rem;">
-            <div style="display:flex; align-items:center; gap:0.25rem;">
-              <span style="font-size:0.7rem; color:var(--ag-text-3); width:32px;">Data:</span>
-              <input type="date" v-model="form.dataRetirada" style="flex:1; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.75rem; padding:0.2rem;" />
+
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.5rem;">Descongelamento</label>
+            <div style="display:flex; gap:0.5rem;">
+               <label v-for="opt in descongelamentoOpts" :key="opt.value" class="ag-radio-box" :class="{ active: form.tipoDescongelamento === opt.value }">
+                <input type="radio" :value="opt.value" v-model="form.tipoDescongelamento" style="display:none;" />
+                {{ opt.label }}
+              </label>
             </div>
-            <div style="display:flex; align-items:center; gap:0.25rem;">
-              <span style="font-size:0.7rem; color:var(--ag-text-3); width:32px;">Hora:</span>
-              <input type="time" v-model="form.horarioRetirada" style="flex:1; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.75rem; padding:0.2rem;" />
+          </div>
+
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.5rem;">Progesterona (dias)</label>
+            <div style="display:flex; gap:0.5rem;">
+              <label v-for="d in [7, 8, 9]" :key="d" class="ag-radio-box" :class="{ active: form.diasProgesterona === d }">
+                <input type="radio" :value="d" v-model="form.diasProgesterona" style="display:none;" />
+                {{ d }}d
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.5rem;">Estímulo</label>
+            <div style="display:flex; gap:0.5rem;">
+               <label v-for="e in ['CE','BE']" :key="e" class="ag-radio-box" :class="{ active: form.estimuloOvulatorio === e }">
+                <input type="radio" :value="e" v-model="form.estimuloOvulatorio" style="display:none;" />
+                {{ e }}
+              </label>
             </div>
           </div>
         </div>
-        <!-- 1ª IA -->
-        <div style="border-right:1px solid var(--ag-border); padding:0.5rem;">
-          <div style="font-size:0.6875rem; font-weight:700; color:var(--ag-text-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:0.375rem;">DATA 1ª IA</div>
-          <input type="date" v-model="form.dataPrimeiraIa" style="width:100%; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.8125rem; padding:0.25rem 0;" />
+      </div>
+
+      <!-- Card 3: Datas -->
+      <div class="ag-card">
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--ag-border); padding-bottom:0.75rem;">
+          <div style="display:flex; align-items:center; justify-content:center; width:2rem; height:2rem; border-radius:0.5rem; background:color-mix(in srgb,#f59e0b 15%,transparent); color:#f59e0b;">
+            <svg style="width:1.25rem;height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <h2 style="font-size:1rem; font-weight:700; color:var(--ag-text); margin:0;">Datas Importantes</h2>
         </div>
-        <!-- DG -->
-        <div style="padding:0.5rem;">
-          <div style="font-size:0.6875rem; font-weight:700; color:var(--ag-text-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:0.375rem;">DATA DG</div>
-          <input type="date" v-model="form.dataDg" style="width:100%; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.8125rem; padding:0.25rem 0;" />
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+          <!-- D-0 -->
+          <div style="padding:0.75rem; border:1px solid var(--ag-border); border-radius:0.5rem; background:var(--ag-surface);">
+             <span style="display:block; font-size:0.65rem; font-weight:800; color:#3b82f6; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Implate (D-0)</span>
+             <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="font-size:0.7rem; color:var(--ag-text-3); width:28px;">Ini:</span>
+                  <input type="date" v-model="form.dataImplante" class="ag-input-neat" style="padding:0.3rem 0.5rem;" />
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="font-size:0.7rem; color:var(--ag-text-3); width:28px;">Fim:</span>
+                  <input type="date" v-model="form.dataImplanteTermino" class="ag-input-neat" style="padding:0.3rem 0.5rem;" />
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="font-size:0.7rem; color:var(--ag-text-3); width:28px;">♂:</span>
+                  <input v-model="form.touroImplante" placeholder="Nome/ID Touro" class="ag-input-neat" style="padding:0.3rem 0.5rem;" />
+                </div>
+             </div>
+          </div>
+          
+          <!-- D-8 -->
+          <div style="padding:0.75rem; border:1px solid var(--ag-border); border-radius:0.5rem; background:var(--ag-surface);">
+             <span style="display:block; font-size:0.65rem; font-weight:800; color:#8b5cf6; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Retirada (D-8)</span>
+             <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="font-size:0.7rem; color:var(--ag-text-3); width:28px;">Dia:</span>
+                  <input type="date" v-model="form.dataRetirada" class="ag-input-neat" style="padding:0.3rem 0.5rem;" />
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="font-size:0.7rem; color:var(--ag-text-3); width:28px;">Hora:</span>
+                  <input type="time" v-model="form.horarioRetirada" class="ag-input-neat" style="padding:0.3rem 0.5rem;" />
+                </div>
+             </div>
+          </div>
+
+          <!-- 1a IA & DG -->
+          <div style="display:flex; flex-direction:column; gap:0.75rem;">
+            <div style="padding:0.75rem; border:1px solid var(--ag-border); border-radius:0.5rem; background:var(--ag-surface);">
+              <span style="display:block; font-size:0.65rem; font-weight:800; color:#ec4899; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Data 1ª IA</span>
+              <input type="date" v-model="form.dataPrimeiraIa" class="ag-input-neat" style="padding:0.3rem 0.5rem;" />
+            </div>
+            <div style="padding:0.75rem; border:1px solid var(--ag-border); border-radius:0.5rem; background:var(--ag-surface);">
+              <span style="display:block; font-size:0.65rem; font-weight:800; color:#14b8a6; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Data DG Prevista</span>
+              <input type="date" v-model="form.dataDg" class="ag-input-neat" style="padding:0.3rem 0.5rem;" />
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Animals Section Header -->
-      <div style="display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0.75rem; background:color-mix(in srgb,var(--ag-primary) 8%,transparent); border-bottom:1px solid var(--ag-border);">
-        <span style="font-weight:700; color:var(--ag-primary); font-size:0.8125rem; text-transform:uppercase; letter-spacing:0.06em;">
-          ANIMAIS
-          <span style="background:var(--ag-primary); color:#fff; border-radius:9999px; font-size:0.65rem; padding:0.1rem 0.4rem; margin-left:0.25rem;">{{ form.animais.length }}</span>
-        </span>
-        <Button size="small" label="+ Adicionar" @click="addAnimal" />
-      </div>
+      <!-- Card 4: Animais Table -->
+      <div class="ag-card" style="padding:0; overflow:hidden;">
+        <!-- Animals Section Header -->
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 1rem; background:color-mix(in srgb,var(--ag-primary) 8%,transparent); border-bottom:1px solid var(--ag-border);">
+          <span style="font-weight:700; color:var(--ag-primary); font-size:0.8125rem; text-transform:uppercase; letter-spacing:0.06em;">
+            ANIMAIS
+            <span style="background:var(--ag-primary); color:#fff; border-radius:9999px; font-size:0.65rem; padding:0.1rem 0.4rem; margin-left:0.25rem;">{{ form.animais.length }}</span>
+          </span>
+          <Button size="small" label="+ Adicionar Animal" @click="addAnimal" />
+        </div>
 
-      <!-- Animals Table -->
-      <div style="overflow-x:auto;">
-        <table class="ag-table" style="min-width:680px;">
-          <thead>
-            <tr>
-              <th style="width:2.5rem;">ORD</th>
-              <th>Fêmea</th>
-              <th>Res. DG</th>
-              <th style="color:var(--ag-primary);">D-0+DG</th>
-              <th style="color:var(--ag-primary);">DG 35</th>
-              <th style="color:var(--ag-primary);">D-8</th>
-              <th style="color:var(--ag-primary);">GnRH</th>
-              <th>Touro</th>
-              <th>Partida</th>
-              <th>Obs</th>
-              <th style="width:2rem;"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="form.animais.length === 0">
-              <td colspan="11" style="text-align:center; padding:1.5rem; color:var(--ag-text-3); font-size:0.8125rem;">
-                Nenhum animal adicionado.
-              </td>
-            </tr>
-            <tr v-for="(animal, i) in form.animais" :key="i">
-              <td style="text-align:center; font-weight:600; color:var(--ag-text-3); font-size:0.75rem;">{{ animal.ord }}</td>
-              <td><input v-model="animal.femea" placeholder="ID/Tag" /></td>
-              <td style="padding:0;">
-                <button
-                  class="ag-dg-btn"
-                  :class="animal.dg_status === 'Prenhe' ? 'prenhe' : animal.dg_status === 'Vazia' ? 'vazia' : ''"
-                  @click="animal.dg_status = animal.dg_status === 'Prenhe' ? 'Vazia' : (animal.dg_status === 'Vazia' ? undefined : 'Prenhe')"
-                >
-                  {{ animal.dg_status === 'Prenhe' ? 'PRENHE' : animal.dg_status === 'Vazia' ? 'VAZIA' : '...' }}
-                </button>
-              </td>
-              <td><input type="date" v-model="animal.d0dg" /></td>
-              <td><input type="date" v-model="animal.dg35" /></td>
-              <td><input type="date" v-model="animal.d8" /></td>
-              <td><input type="date" v-model="animal.gnrh" /></td>
-              <td><input v-model="animal.touro" placeholder="Tag" /></td>
-              <td><input v-model="animal.partida" placeholder="Nº" /></td>
-              <td><input v-model="animal.obs" placeholder="..." /></td>
-              <td style="text-align:center;">
-                <button @click="removeAnimal(i)" style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem; font-size:0.75rem;"
-                  onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--ag-text-3)'">✕</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <!-- Animals Table -->
+        <div style="overflow-x:auto;">
+          <table class="ag-table" style="min-width:680px;">
+            <thead>
+              <tr>
+                <th style="width:2.5rem;">ORD</th>
+                <th>Fêmea</th>
+                <th>Res. DG</th>
+                <th style="color:var(--ag-primary);">D-0+DG</th>
+                <th style="color:var(--ag-primary);">DG 35</th>
+                <th style="color:var(--ag-primary);">D-8</th>
+                <th style="color:var(--ag-primary);">GnRH</th>
+                <th>Touro</th>
+                <th>Partida</th>
+                <th>Obs</th>
+                <th style="width:2rem;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="form.animais.length === 0">
+                <td colspan="11" style="text-align:center; padding:2rem; color:var(--ag-text-3); font-size:0.8125rem;">
+                  Nenhum animal adicionado. <span @click="addAnimal" style="color:var(--ag-primary); cursor:pointer; font-weight:600;">Adicionar agora</span>
+                </td>
+              </tr>
+              <tr v-for="(animal, i) in form.animais" :key="i">
+                <td style="text-align:center; font-weight:700; color:var(--ag-text-3); font-size:0.75rem;">{{ animal.ord }}</td>
+                <td><input v-model="animal.femea" placeholder="ID/Tag" class="ag-input-neat" style="padding:0.4rem; font-weight:600; text-align:center;" /></td>
+                <td style="padding:0;">
+                  <button
+                    class="ag-dg-btn"
+                    :class="animal.dg_status === 'Prenhe' ? 'prenhe' : animal.dg_status === 'Vazia' ? 'vazia' : ''"
+                    @click="animal.dg_status = animal.dg_status === 'Prenhe' ? 'Vazia' : (animal.dg_status === 'Vazia' ? undefined : 'Prenhe')"
+                  >
+                    {{ animal.dg_status === 'Prenhe' ? 'PRENHE' : animal.dg_status === 'Vazia' ? 'VAZIA' : '...' }}
+                  </button>
+                </td>
+                <td><input type="date" v-model="animal.d0dg" class="ag-input-neat" style="padding:0.4rem;" /></td>
+                <td><input type="date" v-model="animal.dg35" class="ag-input-neat" style="padding:0.4rem;" /></td>
+                <td><input type="date" v-model="animal.d8" class="ag-input-neat" style="padding:0.4rem;" /></td>
+                <td><input type="date" v-model="animal.gnrh" class="ag-input-neat" style="padding:0.4rem;" /></td>
+                <td><input v-model="animal.touro" placeholder="Tag" class="ag-input-neat" style="padding:0.4rem; text-align:center;" /></td>
+                <td><input v-model="animal.partida" placeholder="Nº" class="ag-input-neat" style="padding:0.4rem; text-align:center;" /></td>
+                <td><input v-model="animal.obs" placeholder="..." class="ag-input-neat" style="padding:0.4rem;" /></td>
+                <td style="text-align:center;">
+                  <button @click="removeAnimal(i)" style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem; font-size:0.75rem; transition:color 0.2s;"
+                    onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--ag-text-3)'">
+                    <svg style="width:1.25rem; height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <!-- Bulk Add -->
-      <div style="display:flex; align-items:center; gap:0.5rem; padding:0.625rem 0.75rem; border-top:1px solid var(--ag-border); background:var(--ag-bg-2);">
-        <input
-          type="number" v-model="bulkCount" min="1" max="200"
-          style="width:60px; background:var(--ag-surface); border:1px solid var(--ag-border); border-radius:0.375rem; padding:0.25rem 0.5rem; font-size:0.8125rem; color:var(--ag-text); outline:none; text-align:center;"
-        />
-        <span style="font-size:0.8125rem; color:var(--ag-text-2);">linhas</span>
-        <Button size="small" severity="secondary" label="Adicionar linhas rápidas" @click="bulkAddAnimals" />
+        <!-- Bulk Add -->
+        <div style="display:flex; align-items:center; gap:0.5rem; padding:0.625rem 0.75rem; border-top:1px solid var(--ag-border); background:var(--ag-bg-2);">
+          <input
+            type="number" v-model="bulkCount" min="1" max="200"
+            class="ag-input-neat"
+            style="width:80px; text-align:center; padding:0.4rem;"
+          />
+          <span style="font-size:0.8125rem; color:var(--ag-text-2); margin-right:auto;">linhas</span>
+          <Button size="small" severity="secondary" outlined label="Adicionar linhas em lote" @click="bulkAddAnimals" />
+        </div>
       </div>
     </div>
 
@@ -269,6 +284,8 @@
 import { db } from '~/plugins/dexie.client'
 import type { IatfAnimal } from '~/plugins/dexie.client'
 import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
 
 definePageMeta({ layout: 'default' })
 
@@ -396,16 +413,30 @@ onMounted(async () => {
 </script>
 
 <style>
-.ag-radio-label {
-  display: inline-flex;
+.ag-radio-box {
+  display: flex;
   align-items: center;
-  gap: 0.3rem;
-  font-size: 0.8rem;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--ag-border);
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--ag-text-2);
+  background: var(--ag-bg-2);
   cursor: pointer;
-  white-space: nowrap;
+  transition: all 0.2s;
+  user-select: none;
 }
-.ag-radio-label input[type="radio"] {
-  accent-color: var(--ag-primary);
+.ag-radio-box:hover {
+  border-color: var(--ag-border-strong);
+}
+.ag-radio-box.active {
+  background: color-mix(in srgb, var(--ag-primary) 10%, transparent);
+  border-color: var(--ag-primary);
+  color: var(--ag-primary);
+}
+.app-dark .ag-radio-box {
+    background: #111827;
 }
 </style>
