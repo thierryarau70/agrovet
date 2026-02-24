@@ -37,42 +37,7 @@
     </div>
 
     <!-- Criar Modal -->
-    <AppModal v-model="showModal" title="Novo Lote">
-      <form @submit.prevent="askCreate" style="display:flex; flex-direction:column; gap:1rem;">
-        <div>
-          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Fazenda *</label>
-          <Select v-model="form.propriedadeId" :options="propriedades" optionLabel="nome" optionValue="id" placeholder="Selecione..." style="width:100%;" required />
-        </div>
-        <div>
-          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Nome do Lote *</label>
-          <InputText v-model="form.nome" placeholder="Ex: Lote A1" required style="width:100%;" />
-        </div>
-        <div>
-          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Categoria *</label>
-          <Select v-model="form.categoria" :options="['Novilhas','Vacas','Matrizes','Bezerra','Outro']" placeholder="Selecione..." style="width:100%;" required />
-        </div>
-        <div>
-          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Retiro</label>
-          <InputText v-model="form.retiro" placeholder="Nome do retiro (opcional)" style="width:100%;" />
-        </div>
-      </form>
-      <template #footer>
-        <div style="display:flex; gap:0.75rem;">
-          <Button label="Cancelar" severity="secondary" outlined style="flex:1;" @click="showModal = false" />
-          <Button label="Salvar" style="flex:1;" @click="askCreate" />
-        </div>
-      </template>
-    </AppModal>
-
-    <!-- Confirmação Criar -->
-    <AppConfirmModal
-      v-model="confirmCreate"
-      title="Salvar Lote?"
-      :message="`Deseja cadastrar o lote &quot;${form.nome}&quot; (${form.categoria})?`"
-      type="success"
-      confirm-label="Cadastrar"
-      @confirm="saveLote"
-    />
+    <LoteModal v-model="showModal" @saved="load" />
 
     <!-- Confirmação Deletar -->
     <AppConfirmModal
@@ -88,22 +53,16 @@
 
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
-import InputText from 'primevue/inputtext'
-import Select from 'primevue/select'
 import Button from 'primevue/button'
 
 definePageMeta({ layout: 'default' })
 
 const appStore = useAppStore()
-const { addToQueue } = useSync()
 
 const showModal = ref(false)
-const saving = ref(false)
 const lotes = ref<any[]>([])
 const propriedades = ref<any[]>([])
-const form = reactive({ propriedadeId: '' as any, nome: '', categoria: '', retiro: '' })
 
-const confirmCreate = ref(false)
 const confirmDelete = ref(false)
 const targetToDelete = ref<any>(null)
 
@@ -115,28 +74,7 @@ const load = async () => {
 }
 
 const openModal = () => {
-  Object.assign(form, { propriedadeId: '', nome: '', categoria: '', retiro: '' })
   showModal.value = true
-}
-
-const askCreate = () => {
-  if (!form.propriedadeId) { appStore.notify('Selecione uma fazenda.', 'error'); return }
-  if (!form.nome) { appStore.notify('Informe o nome do lote.', 'error'); return }
-  if (!form.categoria) { appStore.notify('Selecione a categoria.', 'error'); return }
-  confirmCreate.value = true
-}
-
-const saveLote = async () => {
-  saving.value = true
-  showModal.value = false
-  try {
-    const now = new Date().toISOString()
-    const dataToSave = { ...form, propriedadeId: Number(form.propriedadeId), createdAt: now, updatedAt: now, synced: false }
-    const id = await db.lotes.add(dataToSave)
-    await addToQueue('create', 'lotes', id as number, dataToSave)
-    appStore.notify('Lote salvo!', 'success')
-    await load()
-  } finally { saving.value = false }
 }
 
 const askDelete = (l: any) => {

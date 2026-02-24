@@ -41,44 +41,7 @@
     </div>
 
     <!-- Criar Modal -->
-    <AppModal v-model="showModal" title="Nova Fazenda">
-      <form @submit.prevent="askCreate" style="display:flex; flex-direction:column; gap:1rem;">
-        <div>
-          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Nome da Fazenda *</label>
-          <InputText v-model="form.nome" placeholder="Ex: Fazenda São João" required style="width:100%;" />
-        </div>
-        <div>
-          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Proprietário *</label>
-          <InputText v-model="form.proprietario" placeholder="Nome completo" required style="width:100%;" />
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 80px; gap:0.75rem;">
-          <div>
-            <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Município</label>
-            <InputText v-model="form.municipio" placeholder="Cidade" style="width:100%;" />
-          </div>
-          <div>
-            <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Estado</label>
-            <InputText v-model="form.estado" v-maska="'@@'" placeholder="UF" style="width:100%; text-transform:uppercase;" />
-          </div>
-        </div>
-      </form>
-      <template #footer>
-        <div style="display:flex; gap:0.75rem;">
-          <Button label="Cancelar" severity="secondary" outlined style="flex:1;" @click="showModal = false" />
-          <Button label="Salvar" style="flex:1;" @click="askCreate" />
-        </div>
-      </template>
-    </AppModal>
-
-    <!-- Confirmação Criar -->
-    <AppConfirmModal
-      v-model="confirmCreate"
-      title="Salvar Fazenda?"
-      :message="`Deseja cadastrar a fazenda &quot;${form.nome}&quot; para ${form.proprietario}?`"
-      type="success"
-      confirm-label="Cadastrar"
-      @confirm="saveProp"
-    />
+    <FazendaModal v-model="showModal" @saved="load" />
 
     <!-- Confirmação Deletar -->
     <AppConfirmModal
@@ -94,48 +57,23 @@
 
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
-import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 
 definePageMeta({ layout: 'default' })
 
 const appStore = useAppStore()
-const { addToQueue } = useSync()
 
 const showModal = ref(false)
-const saving = ref(false)
 const propriedades = ref<any[]>([])
-const form = reactive({ nome: '', proprietario: '', municipio: '', estado: '' })
 
 // Confirm states
-const confirmCreate = ref(false)
 const confirmDelete = ref(false)
 const targetToDelete = ref<any>(null)
 
 const load = async () => { propriedades.value = await db.propriedades.toArray() }
 
 const openModal = () => {
-  Object.assign(form, { nome: '', proprietario: '', municipio: '', estado: '' })
   showModal.value = true
-}
-
-const askCreate = () => {
-  if (!form.nome) { appStore.notify('Informe o nome da fazenda.', 'error'); return }
-  if (!form.proprietario) { appStore.notify('Informe o proprietário.', 'error'); return }
-  confirmCreate.value = true
-}
-
-const saveProp = async () => {
-  saving.value = true
-  showModal.value = false
-  try {
-    const now = new Date().toISOString()
-    const id = await db.propriedades.add({ ...form, createdAt: now, updatedAt: now, synced: false })
-    await addToQueue('create', 'propriedades', id as number, { ...form })
-    appStore.notify('Fazenda salva com sucesso!', 'success')
-    Object.assign(form, { nome: '', proprietario: '', municipio: '', estado: '' })
-    await load()
-  } finally { saving.value = false }
 }
 
 const askDelete = (p: any) => {

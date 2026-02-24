@@ -46,42 +46,7 @@
     </div>
 
     <!-- Criar Modal -->
-    <AppModal v-model="showModal" title="Novo Animal">
-      <form @submit.prevent="askCreate" style="display:flex; flex-direction:column; gap:1rem;">
-        <div>
-          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Lote *</label>
-          <Select v-model="form.loteId" :options="lotes" :option-label="(l) => `${l.nome} (${getNomeFazenda(l.propriedadeId)})`" optionValue="id" placeholder="Selecione o lote..." style="width:100%;" required />
-        </div>
-        <div>
-          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Identificação (Fêmea) *</label>
-          <InputText v-model="form.femea" placeholder="Ex: 123, TAG-456" required style="width:100%;" />
-        </div>
-        <div>
-          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Categoria</label>
-          <Select v-model="form.categoria" :options="['Novilha','Vaca','Matriz','Bezerra']" placeholder="Selecione..." style="width:100%;" />
-        </div>
-        <div>
-          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Observação</label>
-          <Textarea v-model="form.observacao" rows="2" placeholder="Opcional..." style="width:100%;" />
-        </div>
-      </form>
-      <template #footer>
-        <div style="display:flex; gap:0.75rem;">
-          <Button label="Cancelar" severity="secondary" outlined style="flex:1;" @click="showModal = false" />
-          <Button label="Salvar" style="flex:1;" @click="askCreate" />
-        </div>
-      </template>
-    </AppModal>
-
-    <!-- Confirmação Criar -->
-    <AppConfirmModal
-      v-model="confirmCreate"
-      title="Cadastrar Animal?"
-      :message="`Deseja cadastrar a fêmea &quot;${form.femea}&quot; (${form.categoria})?`"
-      type="success"
-      confirm-label="Cadastrar"
-      @confirm="saveAnimal"
-    />
+    <AnimalModal v-model="showModal" @saved="load" />
 
     <!-- Confirmação Deletar -->
     <AppConfirmModal
@@ -98,25 +63,18 @@
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
 import InputText from 'primevue/inputtext'
-import Select from 'primevue/select'
-import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
 
 definePageMeta({ layout: 'default' })
 
 const appStore = useAppStore()
-const { addToQueue } = useSync()
 
 const showModal = ref(false)
-const saving = ref(false)
 const animais = ref<any[]>([])
 const lotes = ref<any[]>([])
 const propriedades = ref<any[]>([])
 const search = ref('')
 
-const form = reactive({ loteId: '' as any, femea: '', categoria: 'Novilha', observacao: '' })
-
-const confirmCreate = ref(false)
 const confirmDelete = ref(false)
 const targetToDelete = ref<any>(null)
 
@@ -138,29 +96,7 @@ const load = async () => {
 }
 
 const openModal = () => {
-  Object.assign(form, { loteId: '', femea: '', categoria: 'Novilha', observacao: '' })
   showModal.value = true
-}
-
-const askCreate = () => {
-  if (!form.loteId) { appStore.notify('Selecione um lote.', 'error'); return }
-  if (!form.femea) { appStore.notify('Informe a identificação da fêmea.', 'error'); return }
-  confirmCreate.value = true
-}
-
-const saveAnimal = async () => {
-  saving.value = true
-  showModal.value = false
-  try {
-    const now = new Date().toISOString()
-    const loteId = Number(form.loteId)
-    const count = await db.animais.where('loteId').equals(loteId).count()
-    const dataToSave = { ...form, loteId, ord: count + 1, createdAt: now, updatedAt: now, synced: false }
-    const id = await db.animais.add(dataToSave)
-    await addToQueue('create', 'animais', id as number, dataToSave)
-    appStore.notify('Animal salvo!', 'success')
-    await load()
-  } finally { saving.value = false }
 }
 
 const askDelete = (a: any) => {

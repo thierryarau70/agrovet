@@ -61,24 +61,24 @@
             </div>
             <span style="font-size:0.7rem; font-weight:600;">IATF</span>
           </NuxtLink>
-          <NuxtLink to="/propriedades" class="ag-quick-action">
+          <button @click="showFazendaModal = true" class="ag-quick-action" style="appearance:none; outline:none; font-family:inherit;">
             <div class="ag-quick-action-icon">
               <svg style="width:1.125rem;height:1.125rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16H3m14 0h2m-2 0h-5m-9 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
             </div>
             <span style="font-size:0.7rem; font-weight:600;">Fazendas</span>
-          </NuxtLink>
-          <NuxtLink to="/lotes" class="ag-quick-action">
+          </button>
+          <button @click="showLoteModal = true" class="ag-quick-action" style="appearance:none; outline:none; font-family:inherit;">
             <div class="ag-quick-action-icon">
               <svg style="width:1.125rem;height:1.125rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
             </div>
             <span style="font-size:0.7rem; font-weight:600;">Lotes</span>
-          </NuxtLink>
-          <NuxtLink to="/animais" class="ag-quick-action">
+          </button>
+          <button @click="showAnimalModal = true" class="ag-quick-action" style="appearance:none; outline:none; font-family:inherit;">
             <div class="ag-quick-action-icon">
               <svg style="width:1.125rem;height:1.125rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
             </div>
             <span style="font-size:0.7rem; font-weight:600;">Animais</span>
-          </NuxtLink>
+          </button>
         </div>
       </div>
 
@@ -164,6 +164,10 @@
     confirm-label="Sair"
     @confirm="handleLogout"
   />
+
+  <FazendaModal v-model="showFazendaModal" @saved="load" />
+  <LoteModal v-model="showLoteModal" @saved="load" />
+  <AnimalModal v-model="showAnimalModal" @saved="load" />
 </template>
 
 <script setup lang="ts">
@@ -175,6 +179,10 @@ definePageMeta({ layout: 'default' })
 const auth = useAuthStore()
 const appStore = useAppStore()
 const { isOnline } = useNetwork()
+
+const showFazendaModal = ref(false)
+const showLoteModal = ref(false)
+const showAnimalModal = ref(false)
 
 const stats = ref([
   { label: 'Fazendas', value: 0, icon: '🏠', badge: 'Total', route: '/propriedades' },
@@ -206,7 +214,7 @@ const handleLogout = async () => {
   await navigateTo('/login')
 }
 
-onMounted(async () => {
+const load = async () => {
   if (!import.meta.client) return
   mounted.value = true
   try {
@@ -283,6 +291,8 @@ onMounted(async () => {
       chartDataPrenhez.value.datasets[0]!.data = [prenhes, vazias]
     }
   } catch {}
-})
+}
+
+onMounted(load)
 </script>
 

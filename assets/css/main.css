@@ -707,3 +707,11 @@ body {
   background: var(--ag-border-strong);
   border-radius: 4px;
 }
+/* Fix PrimeVue overlays z-index across the app to appear above AppModal */
+.p-popover,
+.p-select-overlay,
+.p-datepicker,
+.p-dialog-mask {
+  z-index: 10000 !important;
+}
+
