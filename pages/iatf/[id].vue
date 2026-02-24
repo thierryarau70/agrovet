@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-28">
+  <div style="padding-bottom:6rem;">
     <!-- Header -->
     <PageHeader
       :title="isNew ? 'Novo Protocolo IATF' : 'Editar Protocolo'"
@@ -7,295 +7,246 @@
       back="/iatf"
     >
       <template #actions>
-        <button class="btn-primary btn-sm" :disabled="saving" @click="saveRecord">
-          <svg v-if="saving" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-          </svg>
-          {{ saving ? 'Salvando...' : 'Salvar' }}
-        </button>
+        <ThemeToggle />
+        <Button size="small" :loading="saving" label="Salvar" @click="saveRecord" />
       </template>
     </PageHeader>
-    <div class="max-w-4xl mx-auto px-4 pt-4 space-y-4">      <!-- ═══ SEÇÃO 1: CABEÇALHO ═══ -->
-      <div class="card space-y-4">
-        <h2 class="section-title flex items-center gap-2">
-          <span class="w-6 h-6 bg-brand-800 rounded text-xs flex items-center justify-center text-brand-300 font-bold">1</span>
-          Identificação
-        </h2>
 
-        <div class="grid grid-cols-1 gap-3">
-          <div class="input-wrapper">
-            <input id="proprietario" v-model="form.proprietario" class="peer input-prime" placeholder="Proprietário *" required />
-            <label for="proprietario" class="label-prime">Proprietário *</label>
-          </div>
-          <div>
-            <label class="label">Propriedade *</label>
-            <select v-model="form.propriedadeId" class="input-field" @change="onFazendaChange">
-              <option value="" disabled>Selecione a fazenda...</option>
-              <option v-for="p in propriedades" :key="p.id" :value="p.id">{{ p.nome }}</option>
-            </select>
-          </div>
+    <!-- ═══ PLANILHA ═══ -->
+    <div class="iatf-spreadsheet" style="margin:0.75rem; border-radius:0.625rem;">
+
+      <!-- Green Header Bar -->
+      <div class="iatf-header-bar">Planilha de IATF</div>
+
+      <!-- Logo + Info Grid -->
+      <div style="display:grid; grid-template-columns:140px 1fr; border-bottom:1px solid var(--ag-border);">
+        <!-- Logo -->
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1rem; border-right:1px solid var(--ag-border); background:color-mix(in srgb,var(--ag-primary) 5%,transparent);">
+          <svg style="width:3rem;height:3rem;color:var(--ag-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+          <span style="font-weight:800; font-size:0.875rem; color:var(--ag-primary); margin-top:0.375rem;">AGROVET</span>
+          <span style="font-size:0.6rem; color:var(--ag-text-3); letter-spacing:0.1em;">REPRODUÇÃO</span>
         </div>
 
-        <!-- Inseminação -->
-        <div>
-          <label class="label">Inseminação</label>
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="tipo in tiposInseminacao" :key="tipo"
-              type="button"
-              :class="['px-4 py-2 rounded-xl text-sm font-medium border transition-all', form.tipoInseminacao === tipo ? 'bg-brand-700 border-brand-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600']"
-              @click="form.tipoInseminacao = tipo"
-            >
-              {{ tipo }}
-            </button>
+        <!-- Right side info -->
+        <div style="display:flex; flex-direction:column;">
+          <!-- Row: Proprietário + Propriedade -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--ag-border);">
+            <div class="iatf-row" style="border-right:1px solid var(--ag-border);">
+              <span class="iatf-label">Proprietário:</span>
+              <div class="iatf-value" style="flex:1;">
+                <input v-model="form.proprietario" placeholder="Digite..." />
+              </div>
+            </div>
+            <div class="iatf-row">
+              <span class="iatf-label">Propriedade:</span>
+              <div class="iatf-value" style="flex:1;">
+                <select v-model="form.propriedadeId" @change="onFazendaChange" style="width:100%; background:transparent; border:none; outline:none; color:var(--ag-text); padding:0.5rem 0.75rem; font-size:0.8125rem; cursor:pointer;">
+                  <option value="" disabled>Selecione...</option>
+                  <option v-for="p in propriedades" :key="p.id" :value="p.id">{{ p.nome }}</option>
+                </select>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- Vacina -->
-        <div>
-          <label class="label">Vacina Reprodutiva</label>
-          <div class="flex gap-3">
-            <button
-              v-for="opt in ['SIM', 'NÃO']" :key="opt"
-              type="button"
-              :class="['flex-1 py-2 rounded-xl text-sm font-medium border transition-all', (form.vacinaReprodutiva ? 'SIM' : 'NÃO') === opt ? 'bg-brand-700 border-brand-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400']"
-              @click="form.vacinaReprodutiva = opt === 'SIM'"
-            >
-              {{ opt }}
-            </button>
+          <!-- Row: Inseminação -->
+          <div class="iatf-row" style="padding:0.5rem 0.75rem; border-bottom:1px solid var(--ag-border); flex-wrap:wrap; gap:0.625rem;">
+            <span class="iatf-label" style="padding:0;">Inseminação:</span>
+            <label v-for="tipo in tiposInseminacao" :key="tipo" class="ag-radio-label">
+              <input type="radio" :value="tipo" v-model="form.tipoInseminacao" />
+              <span>{{ tipo }}</span>
+            </label>
           </div>
-        </div>
 
-        <!-- Descongelamento -->
-        <div>
-          <label class="label">Descongelamento</label>
-          <div class="flex gap-3">
-            <button
-              v-for="opt in descongelamentoOpts" :key="opt.value"
-              type="button"
-              :class="['flex-1 py-2 rounded-xl text-sm font-medium border transition-all', form.tipoDescongelamento === opt.value ? 'bg-brand-700 border-brand-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400']"
-              @click="form.tipoDescongelamento = opt.value as 'comum' | 'eletronico'"
-            >
-              {{ opt.label }}
-            </button>
+          <!-- Row: Vacina -->
+          <div class="iatf-row" style="padding:0.5rem 0.75rem; border-bottom:1px solid var(--ag-border); flex-wrap:wrap; gap:0.625rem;">
+            <span class="iatf-label" style="padding:0;">Vacina reprodutiva:</span>
+            <label class="ag-radio-label"><input type="radio" :value="true" v-model="form.vacinaReprodutiva" /><span>SIM</span></label>
+            <label class="ag-radio-label"><input type="radio" :value="false" v-model="form.vacinaReprodutiva" /><span>NÃO</span></label>
           </div>
-        </div>
 
-        <!-- Progesterona -->
-        <div>
-          <label class="label">Progesterona (dias)</label>
-          <div class="flex gap-2">
-            <button
-              v-for="d in [7, 8, 9]" :key="d"
-              type="button"
-              :class="['flex-1 py-2 rounded-xl text-sm font-medium border transition-all', form.diasProgesterona === d ? 'bg-brand-700 border-brand-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400']"
-              @click="form.diasProgesterona = d as 7 | 8 | 9"
-            >
-              {{ d }} dias
-            </button>
+          <!-- Row: Descongelamento -->
+          <div class="iatf-row" style="padding:0.5rem 0.75rem; border-bottom:1px solid var(--ag-border); flex-wrap:wrap; gap:0.625rem;">
+            <span class="iatf-label" style="padding:0;">Descongelamento:</span>
+            <label v-for="opt in descongelamentoOpts" :key="opt.value" class="ag-radio-label">
+              <input type="radio" :value="opt.value" v-model="form.tipoDescongelamento" />
+              <span>{{ opt.label }}</span>
+            </label>
           </div>
-        </div>
 
-        <!-- Estimulo Ovulatório -->
-        <div>
-          <label class="label">Estímulo Ovulatório</label>
-          <div class="flex gap-3">
-            <button
-              v-for="opt in ['CE', 'BE']" :key="opt"
-              type="button"
-              :class="['flex-1 py-2 rounded-xl text-sm font-medium border transition-all', form.estimuloOvulatorio === opt ? 'bg-brand-700 border-brand-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400']"
-              @click="form.estimuloOvulatorio = opt as 'CE' | 'BE'"
-            >
-              {{ opt }}
-            </button>
+          <!-- Row: Progesterona + Estímulo -->
+          <div style="display:grid; grid-template-columns:1fr 1fr;">
+            <div class="iatf-row" style="padding:0.5rem 0.75rem; border-right:1px solid var(--ag-border); flex-wrap:wrap; gap:0.625rem;">
+              <span class="iatf-label" style="padding:0;">Progesterona:</span>
+              <label v-for="d in [7, 8, 9]" :key="d" class="ag-radio-label">
+                <input type="radio" :value="d" v-model="form.diasProgesterona" />
+                <span>{{ d }}d</span>
+              </label>
+            </div>
+            <div class="iatf-row" style="padding:0.5rem 0.75rem; flex-wrap:wrap; gap:0.625rem;">
+              <span class="iatf-label" style="padding:0;">Estímulo:</span>
+              <label v-for="e in ['CE','BE']" :key="e" class="ag-radio-label">
+                <input type="radio" :value="e" v-model="form.estimuloOvulatorio" />
+                <span>{{ e }}</span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ═══ SEÇÃO 2: LOTE ═══ -->
-      <div class="card space-y-3">
-        <h2 class="section-title flex items-center gap-2">
-          <span class="w-6 h-6 bg-brand-800 rounded text-xs flex items-center justify-center text-brand-300 font-bold">2</span>
-          Lote
-        </h2>
-        <div class="grid grid-cols-3 gap-3">
-          <div>
-            <label class="label">Lote</label>
-            <select v-model="form.loteId" class="input-field" @change="onLoteChange">
-              <option value="" disabled>Lote...</option>
+      <!-- Lote / Categoria / Retiro Row -->
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; border-bottom:1px solid var(--ag-border);">
+        <div class="iatf-row" style="border-right:1px solid var(--ag-border);">
+          <span class="iatf-label">LOTE:</span>
+          <div class="iatf-value" style="flex:1;">
+            <select v-model="form.loteId" @change="onLoteChange" style="width:100%; background:transparent; border:none; outline:none; color:var(--ag-text); padding:0.5rem 0.75rem; font-size:0.8125rem;">
+              <option value="" disabled>Selecione...</option>
               <option v-for="l in lotesFiltered" :key="l.id" :value="l.id">{{ l.nome }}</option>
             </select>
           </div>
-          <div class="input-wrapper">
-            <input id="categoria" v-model="form.categoria" class="peer input-prime" placeholder="Categoria" />
-            <label for="categoria" class="label-prime">Categoria</label>
-          </div>
-          <div class="input-wrapper">
-            <input id="retiro" v-model="form.retiro" class="peer input-prime" placeholder="Retiro" />
-            <label for="retiro" class="label-prime">Retiro</label>
-          </div>
+        </div>
+        <div class="iatf-row" style="border-right:1px solid var(--ag-border);">
+          <span class="iatf-label">CATEGORIA:</span>
+          <div class="iatf-value" style="flex:1;"><input v-model="form.categoria" placeholder="Ex: Novilhas" /></div>
+        </div>
+        <div class="iatf-row">
+          <span class="iatf-label">RETIRO:</span>
+          <div class="iatf-value" style="flex:1;"><input v-model="form.retiro" placeholder="Ex: Pasto 1" /></div>
         </div>
       </div>
 
-      <!-- ═══ SEÇÃO 3: DATAS ═══ -->
-      <div class="card space-y-3">
-        <h2 class="section-title flex items-center gap-2">
-          <span class="w-6 h-6 bg-brand-800 rounded text-xs flex items-center justify-center text-brand-300 font-bold">3</span>
-          Datas do Protocolo
-        </h2>
-        <!-- Data Implante -->
-        <div class="bg-gray-800/50 rounded-xl p-3">
-          <p class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Data Implante (D-0)</p>
-          <div class="grid grid-cols-3 gap-2">
-            <div class="input-wrapper">
-              <input id="d-inicio" v-model="form.dataImplante" type="date" class="peer input-prime py-2 text-sm" placeholder="Início" />
-              <label for="d-inicio" class="label-prime">Início</label>
+      <!-- Dates Row -->
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid var(--ag-border);">
+        <!-- D-0 Implante -->
+        <div style="border-right:1px solid var(--ag-border); padding:0.5rem;">
+          <div style="font-size:0.6875rem; font-weight:700; color:var(--ag-text-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:0.375rem;">DATA IMPLANTE (D-0)</div>
+          <div style="display:flex; flex-direction:column; gap:0.25rem;">
+            <div style="display:flex; align-items:center; gap:0.25rem;">
+              <span style="font-size:0.7rem; color:var(--ag-text-3); width:24px;">Ini:</span>
+              <input type="date" v-model="form.dataImplante" style="flex:1; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.75rem; padding:0.2rem;" />
             </div>
-            <div class="input-wrapper">
-              <input id="d-term" v-model="form.dataImplanteTermino" type="date" class="peer input-prime py-2 text-sm" placeholder="Término" />
-              <label for="d-term" class="label-prime">Término</label>
+            <div style="display:flex; align-items:center; gap:0.25rem;">
+              <span style="font-size:0.7rem; color:var(--ag-text-3); width:24px;">Fim:</span>
+              <input type="date" v-model="form.dataImplanteTermino" style="flex:1; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.75rem; padding:0.2rem;" />
             </div>
-            <div class="input-wrapper">
-              <input id="d-touro" v-model="form.touroImplante" class="peer input-prime py-2 text-sm" placeholder="Touro" />
-              <label for="d-touro" class="label-prime">Touro</label>
+            <div style="display:flex; align-items:center; gap:0.25rem;">
+              <span style="font-size:0.7rem; color:var(--ag-text-3); width:24px;">♂:</span>
+              <input v-model="form.touroImplante" placeholder="Nome/ID" style="flex:1; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.75rem; padding:0.2rem;" />
             </div>
           </div>
         </div>
-        <!-- Data Retirada -->
-        <div class="bg-gray-800/50 rounded-xl p-3">
-          <p class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Data Retirada</p>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="input-wrapper">
-              <input id="d-ret" v-model="form.dataRetirada" type="date" class="peer input-prime py-2 text-sm" placeholder="Data" />
-              <label for="d-ret" class="label-prime">Data</label>
+        <!-- Retirada D-8 -->
+        <div style="border-right:1px solid var(--ag-border); padding:0.5rem;">
+          <div style="font-size:0.6875rem; font-weight:700; color:var(--ag-text-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:0.375rem;">DATA RETIRADA</div>
+          <div style="display:flex; flex-direction:column; gap:0.25rem;">
+            <div style="display:flex; align-items:center; gap:0.25rem;">
+              <span style="font-size:0.7rem; color:var(--ag-text-3); width:32px;">Data:</span>
+              <input type="date" v-model="form.dataRetirada" style="flex:1; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.75rem; padding:0.2rem;" />
             </div>
-            <div class="input-wrapper">
-              <input id="h-ret" v-model="form.horarioRetirada" type="time" class="peer input-prime py-2 text-sm" placeholder="Horário" />
-              <label for="h-ret" class="label-prime">Horário</label>
+            <div style="display:flex; align-items:center; gap:0.25rem;">
+              <span style="font-size:0.7rem; color:var(--ag-text-3); width:32px;">Hora:</span>
+              <input type="time" v-model="form.horarioRetirada" style="flex:1; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.75rem; padding:0.2rem;" />
             </div>
           </div>
         </div>
-        <!-- 1ª IA e DG -->
-        <div class="grid grid-cols-2 gap-3">
-          <div class="input-wrapper">
-            <input id="d1ia" v-model="form.dataPrimeiraIa" type="date" class="peer input-prime" placeholder="Data 1ª IA" />
-            <label for="d1ia" class="label-prime">Data 1ª IA</label>
-          </div>
-          <div class="input-wrapper">
-            <input id="ddg" v-model="form.dataDg" type="date" class="peer input-prime" placeholder="Data DG" />
-            <label for="ddg" class="label-prime">Data DG</label>
-          </div>
+        <!-- 1ª IA -->
+        <div style="border-right:1px solid var(--ag-border); padding:0.5rem;">
+          <div style="font-size:0.6875rem; font-weight:700; color:var(--ag-text-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:0.375rem;">DATA 1ª IA</div>
+          <input type="date" v-model="form.dataPrimeiraIa" style="width:100%; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.8125rem; padding:0.25rem 0;" />
+        </div>
+        <!-- DG -->
+        <div style="padding:0.5rem;">
+          <div style="font-size:0.6875rem; font-weight:700; color:var(--ag-text-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:0.375rem;">DATA DG</div>
+          <input type="date" v-model="form.dataDg" style="width:100%; background:transparent; border:none; outline:none; color:var(--ag-text); font-size:0.8125rem; padding:0.25rem 0;" />
         </div>
       </div>
 
-      <!-- ═══ SEÇÃO 4: TABELA DE ANIMAIS ═══ -->
-      <div class="card p-0 overflow-hidden">
-        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-          <h2 class="section-title mb-0 flex items-center gap-2">
-            <span class="w-6 h-6 bg-brand-800 rounded text-xs flex items-center justify-center text-brand-300 font-bold">4</span>
-            Animais ({{ form.animais.length }})
-          </h2>
-          <button class="btn-primary btn-sm" type="button" @click="addAnimal">+ Animal</button>
-        </div>
-
-        <!-- Scrollable table -->
-        <div class="overflow-x-auto">
-          <table class="w-full min-w-[680px] text-xs">
-            <thead>
-              <tr>
-                <th class="table-header w-10 text-center">ORD</th>
-                <th class="table-header">Fêmea</th>
-                <th class="table-header text-center">Res. DG</th>
-                <th class="table-header text-center">D-0+DG</th>
-                <th class="table-header text-center">DG 35</th>
-                <th class="table-header text-center">D-8</th>
-                <th class="table-header text-center">GnRH</th>
-                <th class="table-header">TOURO</th>
-                <th class="table-header">Partida</th>
-                <th class="table-header">Obs</th>
-                <th class="table-header w-8"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="form.animais.length === 0">
-                <td colspan="10" class="table-cell text-center text-gray-600 py-6">
-                  Nenhum animal adicionado. Clique em "+ Animal" para começar.
-                </td>
-              </tr>
-              <tr
-                v-for="(animal, i) in form.animais"
-                :key="i"
-                :class="['hover:bg-gray-800/40 transition-colors', i % 2 === 0 ? '' : 'bg-gray-800/20']"
-              >
-                <td class="table-cell text-center font-semibold text-brand-400">{{ animal.ord }}</td>
-                <td class="table-cell">
-                  <input v-model="animal.femea" class="table-input w-20" placeholder="ID/Tag" />
-                </td>
-                <td class="table-cell text-center">
-                  <select v-model="animal.dg_status" class="table-input w-24">
-                    <option :value="undefined">---</option>
-                    <option value="Prenhe">Prenhe</option>
-                    <option value="Vazia">Vazia</option>
-                  </select>
-                </td>
-                <td class="table-cell text-center">
-                  <input v-model="animal.d0dg" class="table-input w-16 text-center" type="date" />
-                </td>
-                <td class="table-cell text-center">
-                  <input v-model="animal.dg35" class="table-input w-16 text-center" type="date" />
-                </td>
-                <td class="table-cell text-center">
-                  <input v-model="animal.d8" class="table-input w-16 text-center" type="date" />
-                </td>
-                <td class="table-cell text-center">
-                  <input v-model="animal.gnrh" class="table-input w-16 text-center" type="date" />
-                </td>
-                <td class="table-cell">
-                  <input v-model="animal.touro" class="table-input w-20" placeholder="Tag" />
-                </td>
-                <td class="table-cell">
-                  <input v-model="animal.partida" class="table-input w-16" placeholder="Nº" />
-                </td>
-                <td class="table-cell">
-                  <input v-model="animal.obs" class="table-input w-20" placeholder="..." />
-                </td>
-                <td class="table-cell">
-                  <button type="button" class="text-gray-600 hover:text-red-400 transition-colors p-0.5" @click="removeAnimal(i)">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Bulk add -->
-        <div class="px-4 py-3 border-t border-gray-800 flex items-center gap-3">
-          <input
-            v-model.number="bulkCount"
-            type="number"
-            min="1"
-            max="200"
-            class="input-field w-24 py-2 text-sm"
-            placeholder="Qtd"
-          />
-          <button type="button" class="btn-secondary btn-sm" @click="bulkAddAnimals">
-            Adicionar {{ bulkCount || 0 }} animais
-          </button>
-        </div>
+      <!-- Animals Section Header -->
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0.75rem; background:color-mix(in srgb,var(--ag-primary) 8%,transparent); border-bottom:1px solid var(--ag-border);">
+        <span style="font-weight:700; color:var(--ag-primary); font-size:0.8125rem; text-transform:uppercase; letter-spacing:0.06em;">
+          ANIMAIS
+          <span style="background:var(--ag-primary); color:#fff; border-radius:9999px; font-size:0.65rem; padding:0.1rem 0.4rem; margin-left:0.25rem;">{{ form.animais.length }}</span>
+        </span>
+        <Button size="small" label="+ Adicionar" @click="addAnimal" />
       </div>
 
-      <!-- Save button (bottom) -->
-      <button class="btn-primary w-full py-4 text-base" :disabled="saving" @click="saveRecord">
-        <svg v-if="saving" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-        </svg>
-        {{ saving ? 'Salvando...' : '💾 Salvar Protocolo IATF' }}
-      </button>
+      <!-- Animals Table -->
+      <div style="overflow-x:auto;">
+        <table class="ag-table" style="min-width:680px;">
+          <thead>
+            <tr>
+              <th style="width:2.5rem;">ORD</th>
+              <th>Fêmea</th>
+              <th>Res. DG</th>
+              <th style="color:var(--ag-primary);">D-0+DG</th>
+              <th style="color:var(--ag-primary);">DG 35</th>
+              <th style="color:var(--ag-primary);">D-8</th>
+              <th style="color:var(--ag-primary);">GnRH</th>
+              <th>Touro</th>
+              <th>Partida</th>
+              <th>Obs</th>
+              <th style="width:2rem;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="form.animais.length === 0">
+              <td colspan="11" style="text-align:center; padding:1.5rem; color:var(--ag-text-3); font-size:0.8125rem;">
+                Nenhum animal adicionado.
+              </td>
+            </tr>
+            <tr v-for="(animal, i) in form.animais" :key="i">
+              <td style="text-align:center; font-weight:600; color:var(--ag-text-3); font-size:0.75rem;">{{ animal.ord }}</td>
+              <td><input v-model="animal.femea" placeholder="ID/Tag" /></td>
+              <td style="padding:0;">
+                <button
+                  class="ag-dg-btn"
+                  :class="animal.dg_status === 'Prenhe' ? 'prenhe' : animal.dg_status === 'Vazia' ? 'vazia' : ''"
+                  @click="animal.dg_status = animal.dg_status === 'Prenhe' ? 'Vazia' : (animal.dg_status === 'Vazia' ? undefined : 'Prenhe')"
+                >
+                  {{ animal.dg_status === 'Prenhe' ? 'PRENHE' : animal.dg_status === 'Vazia' ? 'VAZIA' : '...' }}
+                </button>
+              </td>
+              <td><input type="date" v-model="animal.d0dg" /></td>
+              <td><input type="date" v-model="animal.dg35" /></td>
+              <td><input type="date" v-model="animal.d8" /></td>
+              <td><input type="date" v-model="animal.gnrh" /></td>
+              <td><input v-model="animal.touro" placeholder="Tag" /></td>
+              <td><input v-model="animal.partida" placeholder="Nº" /></td>
+              <td><input v-model="animal.obs" placeholder="..." /></td>
+              <td style="text-align:center;">
+                <button @click="removeAnimal(i)" style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem; font-size:0.75rem;"
+                  onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--ag-text-3)'">✕</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bulk Add -->
+      <div style="display:flex; align-items:center; gap:0.5rem; padding:0.625rem 0.75rem; border-top:1px solid var(--ag-border); background:var(--ag-bg-2);">
+        <input
+          type="number" v-model="bulkCount" min="1" max="200"
+          style="width:60px; background:var(--ag-surface); border:1px solid var(--ag-border); border-radius:0.375rem; padding:0.25rem 0.5rem; font-size:0.8125rem; color:var(--ag-text); outline:none; text-align:center;"
+        />
+        <span style="font-size:0.8125rem; color:var(--ag-text-2);">linhas</span>
+        <Button size="small" severity="secondary" label="Adicionar linhas rápidas" @click="bulkAddAnimals" />
+      </div>
+    </div>
+
+    <!-- Predictive Timeline -->
+    <div style="margin:0.75rem;">
+      <IatfTimeline :protocol="form" />
+    </div>
+
+    <!-- Save button (bottom) -->
+    <div style="position:fixed; bottom:5rem; left:0; right:0; display:flex; justify-content:center; pointer-events:none;">
+      <Button
+        :loading="saving"
+        label="💾 Salvar Protocolo"
+        @click="saveRecord"
+        style="pointer-events:all; box-shadow:0 4px 16px rgba(22,163,74,.4); padding:0.75rem 2rem; font-size:1rem;"
+      />
     </div>
   </div>
 </template>
@@ -303,6 +254,7 @@
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
 import type { IatfAnimal } from '~/plugins/dexie.client'
+import Button from 'primevue/button'
 
 definePageMeta({ layout: 'default' })
 
@@ -323,11 +275,7 @@ const lotesFiltered = computed(() =>
 )
 
 const tiposInseminacao = ['1 IATF', 'Ressinc1', 'Ressinc2'] as const
-const descongelamentoOpts = [
-  { value: 'comum', label: 'Comum' },
-  { value: 'eletronico', label: 'Eletrônico' },
-]
-
+const descongelamentoOpts = [{ value: 'comum', label: 'Comum' }, { value: 'eletronico', label: 'Eletrônico' }]
 const bulkCount = ref(10)
 
 const form = reactive({
@@ -355,54 +303,22 @@ const form = reactive({
 
 const onFazendaChange = () => {
   const p = propriedades.value.find(p => p.id === Number(form.propriedadeId))
-  if (p) {
-    form.proprietario = p.proprietario
-    form.propriedade = p.nome
-  }
-  form.loteId = ''
-  form.lote = ''
+  if (p) { form.proprietario = p.proprietario; form.propriedade = p.nome }
+  form.loteId = ''; form.lote = ''
 }
 
 const onLoteChange = () => {
   const l = lotes.value.find(l => l.id === Number(form.loteId))
-  if (l) {
-    form.lote = l.nome
-    form.categoria = l.categoria
-    form.retiro = l.retiro || ''
-  }
+  if (l) { form.lote = l.nome; form.categoria = l.categoria; form.retiro = l.retiro || '' }
 }
 
-const addAnimal = () => {
-  form.animais.push({
-    ord: form.animais.length + 1,
-    femea: '',
-    d0dg: '',
-    dg35: '',
-    d8: '',
-    gnrh: '',
-    touro: '',
-    partida: '',
-    obs: '',
-    dg_status: undefined,
-  })
-}
+const addAnimal = () => form.animais.push({ ord: form.animais.length + 1, femea: '', d0dg: '', dg35: '', d8: '', gnrh: '', touro: '', partida: '', obs: '', dg_status: undefined })
 
 const bulkAddAnimals = () => {
   const count = Number(bulkCount.value) || 0
   const start = form.animais.length
   for (let i = 0; i < count; i++) {
-    form.animais.push({
-      ord: start + i + 1,
-      femea: String(start + i + 1),
-      d0dg: '',
-      dg35: '',
-      d8: '',
-      gnrh: '',
-      touro: '',
-      partida: '',
-      obs: '',
-      dg_status: undefined,
-    })
+    form.animais.push({ ord: start + i + 1, femea: String(start + i + 1), d0dg: '', dg35: '', d8: '', gnrh: '', touro: '', partida: '', obs: '', dg_status: undefined })
   }
 }
 
@@ -412,27 +328,16 @@ const removeAnimal = (index: number) => {
 }
 
 const saveRecord = async () => {
-  if (!form.proprietario) {
-    appStore.notify('Preencha o proprietário.', 'error')
-    return
-  }
+  if (!form.proprietario) { appStore.notify('Preencha o proprietário.', 'error'); return }
   saving.value = true
   try {
     const now = new Date().toISOString()
-    // Convert reactive proxy to plain object for IndexedDB (prevents DataCloneError)
-    const data = JSON.parse(JSON.stringify({
-      ...form,
-      propriedadeId: Number(form.propriedadeId) || 0,
-      loteId: Number(form.loteId) || 0,
-      createdAt: now,
-      updatedAt: now,
-      synced: false,
-    }))
+    const data = JSON.parse(JSON.stringify({ ...form, propriedadeId: Number(form.propriedadeId) || 0, loteId: Number(form.loteId) || 0, createdAt: now, updatedAt: now, synced: false }))
 
     if (isNew.value) {
       const id = await db.iatfRecords.add(data)
       await addToQueue('create', 'iatfRecords', id as number, data)
-      appStore.notify('Protocolo IATF salvo com sucesso! ✓', 'success')
+      appStore.notify('Protocolo IATF salvo! ✓', 'success')
       await router.push(`/iatf/${id}`)
     } else {
       const id = Number(route.params.id)
@@ -441,69 +346,46 @@ const saveRecord = async () => {
       appStore.notify('Protocolo atualizado! ✓', 'success')
     }
 
-    // Update animals pregnancy status or create new animals
     const animaisNoLote = await db.animais.where('loteId').equals(Number(form.loteId)).toArray()
-    const animaisToUpdate: any[] = []
-    const animaisToCreate: any[] = []
-
+    const toUpdate: any[] = [], toCreate: any[] = []
     for (const a of data.animais) {
-      if (!a.femea) continue // Ignorar linhas vazias
-
+      if (!a.femea) continue
       const match = animaisNoLote.find(dbA => String(dbA.femea).trim() === String(a.femea).trim())
-
       if (match) {
-        // Atualizar se o status_prenhez tiver mudado (e o campo DG foi preenchido)
         if (a.dg_status && match.status_prenhez !== a.dg_status) {
-          match.status_prenhez = a.dg_status
-          match.updatedAt = now
-          animaisToUpdate.push(match)
+          match.status_prenhez = a.dg_status; match.updatedAt = now; toUpdate.push(match)
         }
       } else {
-        // Animal não existe no lote, cria automaticamente
-        animaisToCreate.push({
-          loteId: Number(form.loteId),
-          femea: String(a.femea).trim(),
-          categoria: form.categoria || 'Não definida',
-          ord: Number(a.ord) || 0,
-          observacao: a.obs || '',
-          status_prenhez: a.dg_status || 'Vazia',
-          createdAt: now,
-          updatedAt: now,
-          synced: false
-        })
+        toCreate.push({ loteId: Number(form.loteId), femea: String(a.femea).trim(), categoria: form.categoria || 'Não definida', ord: Number(a.ord) || 0, observacao: a.obs || '', status_prenhez: a.dg_status || 'Vazia', createdAt: now, updatedAt: now, synced: false })
       }
     }
-
-    if (animaisToUpdate.length > 0) {
-      await db.animais.bulkPut(animaisToUpdate)
-      for (const updatedAnimal of animaisToUpdate) {
-         await addToQueue('update', 'animais', updatedAnimal.id, updatedAnimal)
-      }
-    }
-
-    if (animaisToCreate.length > 0) {
-      for (const newAnimal of animaisToCreate) {
-        const newId = await db.animais.add(newAnimal)
-        await addToQueue('create', 'animais', newId as number, newAnimal)
-      }
-    }
-  } catch (e) {
-    appStore.notify('Erro ao salvar. Tente novamente.', 'error')
-  } finally {
-    saving.value = false
-  }
+    if (toUpdate.length > 0) { await db.animais.bulkPut(toUpdate); for (const u of toUpdate) await addToQueue('update', 'animais', u.id, u) }
+    if (toCreate.length > 0) { for (const n of toCreate) { const nid = await db.animais.add(n); await addToQueue('create', 'animais', nid as number, n) } }
+  } catch { appStore.notify('Erro ao salvar. Tente novamente.', 'error') }
+  finally { saving.value = false }
 }
 
 onMounted(async () => {
   propriedades.value = await db.propriedades.toArray()
   lotes.value = await db.lotes.toArray()
-
   if (!isNew.value) {
-    const id = Number(route.params.id)
-    const record = await db.iatfRecords.get(id)
-    if (record) {
-      Object.assign(form, record)
-    }
+    const record = await db.iatfRecords.get(Number(route.params.id))
+    if (record) Object.assign(form, record)
   }
 })
 </script>
+
+<style>
+.ag-radio-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--ag-text-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ag-radio-label input[type="radio"] {
+  accent-color: var(--ag-primary);
+}
+</style>

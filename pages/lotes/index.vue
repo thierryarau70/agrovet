@@ -2,36 +2,28 @@
   <div>
     <PageHeader title="Lotes" :subtitle="`${lotes.length} cadastrado(s)`" back="/">
       <template #actions>
-        <button class="btn-primary btn-sm" @click="openModal">+ Novo</button>
+        <Button size="small" label="+ Novo" @click="openModal" />
       </template>
     </PageHeader>
 
     <div class="page-container">
-      <div v-if="lotes.length === 0" class="card text-center py-10 text-gray-500 text-sm mt-4">
-        <span class="text-4xl block mb-3">📦</span>
+      <div v-if="lotes.length === 0" class="ag-card" style="text-align:center; padding:2.5rem 1rem; color:var(--ag-text-3);">
+        <span style="font-size:2.5rem; display:block; margin-bottom:0.75rem;">📦</span>
         Nenhum lote cadastrado.
-        <button class="block mt-2 text-brand-400 mx-auto" @click="openModal">+ Cadastrar lote</button>
+        <button @click="openModal" style="display:block; margin:0.5rem auto 0; color:var(--ag-primary); font-weight:600; background:none; border:none; cursor:pointer; font-size:0.875rem;">+ Cadastrar lote</button>
       </div>
 
-      <div v-else class="space-y-2 mt-2">
-        <div
-          v-for="l in lotes" :key="l.id"
-          class="card flex items-center justify-between hover:border-brand-800 transition-colors"
-        >
+      <div v-else style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem;">
+        <div v-for="l in lotes" :key="l.id" class="ag-card" style="display:flex; align-items:center; justify-content:space-between;">
           <div>
-            <p class="font-medium text-white">{{ l.nome }}</p>
-            <p class="text-xs text-gray-500">
-              {{ getNomeFazenda(l.propriedadeId) }} •
-              Categoria: {{ l.categoria }} •
-              Retiro: {{ l.retiro || '—' }}
-            </p>
+            <p style="font-weight:600; color:var(--ag-text); margin:0; font-size:0.9375rem;">{{ l.nome }}</p>
+            <p style="font-size:0.75rem; color:var(--ag-text-3); margin:0.15rem 0 0;">{{ getNomeFazenda(l.propriedadeId) }} • {{ l.categoria }} • {{ l.retiro || '—' }}</p>
           </div>
-          <div class="flex items-center gap-2">
-            <span :class="['badge', l.synced ? 'badge-green' : 'badge-yellow']">
-              {{ l.synced ? '✓' : '⏳' }}
-            </span>
-            <button class="text-gray-600 hover:text-red-400 transition-colors p-1" @click="deleteLote(l.id!)">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span :class="['ag-badge', l.synced ? 'ag-badge-green' : 'ag-badge-yellow']">{{ l.synced ? '✓' : '⏳' }}</span>
+            <button style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem;" @click="deleteLote(l.id!)"
+              onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--ag-text-3)'">
+              <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
@@ -41,40 +33,28 @@
     </div>
 
     <AppModal v-model="showModal" title="Novo Lote">
-      <form @submit.prevent="saveLote" class="space-y-4">
+      <form @submit.prevent="saveLote" style="display:flex; flex-direction:column; gap:1rem;">
         <div>
-          <label class="label">Fazenda *</label>
-          <select v-model="form.propriedadeId" class="input-field" required>
-            <option value="" disabled>Selecione...</option>
-            <option v-for="p in propriedades" :key="p.id" :value="p.id">{{ p.nome }}</option>
-          </select>
+          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Fazenda *</label>
+          <Select v-model="form.propriedadeId" :options="propriedades" optionLabel="nome" optionValue="id" placeholder="Selecione..." style="width:100%;" required />
         </div>
         <div>
-          <label class="label">Nome do Lote *</label>
-          <input v-model="form.nome" class="input-field" placeholder="Ex: Lote A1" required />
+          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Nome do Lote *</label>
+          <InputText v-model="form.nome" placeholder="Ex: Lote A1" required style="width:100%;" />
         </div>
         <div>
-          <label class="label">Categoria *</label>
-          <select v-model="form.categoria" class="input-field" required>
-            <option value="" disabled>Selecione...</option>
-            <option>Novilhas</option>
-            <option>Vacas</option>
-            <option>Matrizes</option>
-            <option>Bezerra</option>
-            <option>Outro</option>
-          </select>
+          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Categoria *</label>
+          <Select v-model="form.categoria" :options="['Novilhas','Vacas','Matrizes','Bezerra','Outro']" placeholder="Selecione..." style="width:100%;" required />
         </div>
         <div>
-          <label class="label">Retiro</label>
-          <input v-model="form.retiro" class="input-field" placeholder="Nome do retiro (opcional)" />
+          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Retiro</label>
+          <InputText v-model="form.retiro" placeholder="Nome do retiro (opcional)" style="width:100%;" />
         </div>
       </form>
       <template #footer>
-        <div class="flex gap-3">
-          <button class="btn-secondary flex-1" @click="showModal = false">Cancelar</button>
-          <button class="btn-primary flex-1" :disabled="saving" @click="saveLote">
-            {{ saving ? 'Salvando...' : 'Salvar' }}
-          </button>
+        <div style="display:flex; gap:0.75rem;">
+          <Button label="Cancelar" severity="secondary" outlined style="flex:1;" @click="showModal = false" />
+          <Button label="Salvar" :loading="saving" style="flex:1;" @click="saveLote" />
         </div>
       </template>
     </AppModal>
@@ -83,6 +63,9 @@
 
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import Button from 'primevue/button'
 
 definePageMeta({ layout: 'default' })
 
@@ -93,7 +76,6 @@ const showModal = ref(false)
 const saving = ref(false)
 const lotes = ref<any[]>([])
 const propriedades = ref<any[]>([])
-
 const form = reactive({ propriedadeId: '' as any, nome: '', categoria: '', retiro: '' })
 
 const getNomeFazenda = (id: number) => propriedades.value.find(p => p.id === id)?.nome ?? '—'
@@ -113,21 +95,13 @@ const saveLote = async () => {
   saving.value = true
   try {
     const now = new Date().toISOString()
-    const dataToSave = { 
-      ...form, 
-      propriedadeId: Number(form.propriedadeId),
-      createdAt: now, 
-      updatedAt: now, 
-      synced: false 
-    }
+    const dataToSave = { ...form, propriedadeId: Number(form.propriedadeId), createdAt: now, updatedAt: now, synced: false }
     const id = await db.lotes.add(dataToSave)
     await addToQueue('create', 'lotes', id as number, dataToSave)
     appStore.notify('Lote salvo!', 'success')
     showModal.value = false
     await load()
-  } finally {
-    saving.value = false
-  }
+  } finally { saving.value = false }
 }
 
 const deleteLote = async (id: number) => {

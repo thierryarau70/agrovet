@@ -2,47 +2,37 @@
   <div>
     <PageHeader title="Animais" :subtitle="`${animais.length} cadastrado(s)`" back="/">
       <template #actions>
-        <button class="btn-primary btn-sm" @click="openModal">+ Novo</button>
+        <Button size="small" label="+ Novo" @click="openModal" />
       </template>
     </PageHeader>
 
     <!-- Search -->
-    <div class="max-w-2xl mx-auto px-4 pt-3">
-      <input
-        v-model="search"
-        type="search"
-        class="input-field"
-        placeholder="🔍 Buscar fêmea, categoria..."
-      />
+    <div style="max-width:860px; margin:0 auto; padding:0.75rem 1rem 0;">
+      <InputText v-model="search" placeholder="🔍 Buscar fêmea, categoria..." style="width:100%;" />
     </div>
 
     <div class="page-container">
-      <div v-if="filtered.length === 0" class="card text-center py-10 text-gray-500 text-sm mt-2">
-        <span class="text-4xl block mb-3">🐄</span>
+      <div v-if="filtered.length === 0" class="ag-card" style="text-align:center; padding:2.5rem 1rem; color:var(--ag-text-3); margin-top:0.5rem;">
+        <span style="font-size:2.5rem; display:block; margin-bottom:0.75rem;">🐄</span>
         {{ search ? 'Nenhum animal encontrado.' : 'Nenhum animal cadastrado.' }}
-        <button v-if="!search" class="block mt-2 text-brand-400 mx-auto" @click="openModal">+ Cadastrar animal</button>
+        <button v-if="!search" @click="openModal" style="display:block; margin:0.5rem auto 0; color:var(--ag-primary); font-weight:600; background:none; border:none; cursor:pointer; font-size:0.875rem;">+ Cadastrar animal</button>
       </div>
 
-      <div v-else class="space-y-2 mt-2">
-        <div
-          v-for="a in filtered" :key="a.id"
-          class="card flex items-center justify-between"
-        >
+      <div v-else style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem;">
+        <div v-for="a in filtered" :key="a.id" class="ag-card" style="display:flex; align-items:center; justify-content:space-between;">
           <div>
-            <p class="font-medium text-white">{{ a.femea }}</p>
-            <p class="text-xs text-gray-500">
-              {{ getNomeLote(a.loteId) }} • {{ a.categoria }}
-            </p>
+            <p style="font-weight:600; color:var(--ag-text); margin:0; font-size:0.9375rem;">{{ a.femea }}</p>
+            <p style="font-size:0.75rem; color:var(--ag-text-3); margin:0.15rem 0 0;">{{ getNomeLote(a.loteId) }} • {{ a.categoria }}</p>
           </div>
-          <div class="flex items-center gap-2">
-            <span v-if="a.status_prenhez" :class="['text-xs px-2 py-0.5 rounded-full border', a.status_prenhez === 'Prenhe' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30']">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span v-if="a.status_prenhez" :class="['ag-badge', a.status_prenhez === 'Prenhe' ? 'ag-badge-green' : '']"
+              :style="a.status_prenhez !== 'Prenhe' ? 'background:color-mix(in srgb,#dc2626 12%,transparent);color:#dc2626;border-color:color-mix(in srgb,#dc2626 30%,transparent);' : ''">
               {{ a.status_prenhez }}
             </span>
-            <span :class="['badge', a.synced ? 'badge-green' : 'badge-yellow']">
-              {{ a.synced ? '✓' : '⏳' }}
-            </span>
-            <button class="text-gray-600 hover:text-red-400 p-1" @click="deleteAnimal(a.id!)">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span :class="['ag-badge', a.synced ? 'ag-badge-green' : 'ag-badge-yellow']">{{ a.synced ? '✓' : '⏳' }}</span>
+            <button style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem;" @click="deleteAnimal(a.id!)"
+              onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--ag-text-3)'">
+              <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
@@ -52,38 +42,28 @@
     </div>
 
     <AppModal v-model="showModal" title="Novo Animal">
-      <form @submit.prevent="saveAnimal" class="space-y-4">
+      <form @submit.prevent="saveAnimal" style="display:flex; flex-direction:column; gap:1rem;">
         <div>
-          <label class="label">Lote *</label>
-          <select v-model="form.loteId" class="input-field" required>
-            <option value="" disabled>Selecione o lote...</option>
-            <option v-for="l in lotes" :key="l.id" :value="l.id">{{ l.nome }} ({{ getNomeFazenda(l.propriedadeId) }})</option>
-          </select>
+          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Lote *</label>
+          <Select v-model="form.loteId" :options="lotes" :option-label="(l) => `${l.nome} (${getNomeFazenda(l.propriedadeId)})`" optionValue="id" placeholder="Selecione o lote..." style="width:100%;" required />
         </div>
         <div>
-          <label class="label">Identificação (Fêmea) *</label>
-          <input v-model="form.femea" class="input-field" placeholder="Ex: 123, TAG-456" required />
+          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Identificação (Fêmea) *</label>
+          <InputText v-model="form.femea" placeholder="Ex: 123, TAG-456" required style="width:100%;" />
         </div>
         <div>
-          <label class="label">Categoria</label>
-          <select v-model="form.categoria" class="input-field">
-            <option>Novilha</option>
-            <option>Vaca</option>
-            <option>Matriz</option>
-            <option>Bezerra</option>
-          </select>
+          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Categoria</label>
+          <Select v-model="form.categoria" :options="['Novilha','Vaca','Matriz','Bezerra']" placeholder="Selecione..." style="width:100%;" />
         </div>
         <div>
-          <label class="label">Observação</label>
-          <textarea v-model="form.observacao" class="input-field" rows="2" placeholder="Opcional..." />
+          <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Observação</label>
+          <Textarea v-model="form.observacao" rows="2" placeholder="Opcional..." style="width:100%;" />
         </div>
       </form>
       <template #footer>
-        <div class="flex gap-3">
-          <button class="btn-secondary flex-1" @click="showModal = false">Cancelar</button>
-          <button class="btn-primary flex-1" :disabled="saving" @click="saveAnimal">
-            {{ saving ? 'Salvando...' : 'Salvar' }}
-          </button>
+        <div style="display:flex; gap:0.75rem;">
+          <Button label="Cancelar" severity="secondary" outlined style="flex:1;" @click="showModal = false" />
+          <Button label="Salvar" :loading="saving" style="flex:1;" @click="saveAnimal" />
         </div>
       </template>
     </AppModal>
@@ -92,6 +72,10 @@
 
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import Textarea from 'primevue/textarea'
+import Button from 'primevue/button'
 
 definePageMeta({ layout: 'default' })
 
@@ -142,9 +126,7 @@ const saveAnimal = async () => {
     appStore.notify('Animal salvo!', 'success')
     showModal.value = false
     await load()
-  } finally {
-    saving.value = false
-  }
+  } finally { saving.value = false }
 }
 
 const deleteAnimal = async (id: number) => {
