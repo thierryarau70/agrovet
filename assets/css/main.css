@@ -871,3 +871,27 @@ body {
   color: var(--ag-primary);
   border-bottom-color: var(--ag-primary);
 }
+
+/* --- Mobile Icon Adjustments --- */
+@media (max-width: 600px) {
+
+  /* PrimeIcons inside all buttons and floating elements */
+  .p-button .pi {
+    font-size: 0.875rem !important;
+  }
+
+  /* SVG icons inside custom buttons */
+  button svg,
+  .ag-btn svg,
+  .iatf-nav-btn svg {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+  }
+
+  /* Paginator arrows or purely icon buttons */
+  .p-button.p-button-icon-only {
+    width: 2rem !important;
+    height: 2rem !important;
+    padding: 0.25rem !important;
+  }
+}
