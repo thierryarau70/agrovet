@@ -530,8 +530,8 @@ const saveRecord = async () => {
       if (match) {
         let needsUpdate = false
         // Update DG status if present and different
-        if (a.dg_status && match.status_prenhez !== a.dg_status) {
-          match.status_prenhez = a.dg_status
+        if (a.dg_status !== undefined && match.status_prenhez !== a.dg_status) {
+          match.status_prenhez = a.dg_status || 'Vazia'
           needsUpdate = true
         }
         // Also update observation if present and different
