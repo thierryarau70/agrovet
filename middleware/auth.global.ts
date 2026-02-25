@@ -2,7 +2,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     if (import.meta.server) return
 
     const auth = useAuthStore()
-    const publicRoutes = ['/login', '/register']
+    const publicRoutes = ['/login', '/register', '/welcome']
 
     // If not logged in, try to restore session from localStorage token first (instant)
     // then also trigger async Supabase session restore in background
@@ -38,7 +38,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
     // Route guard using current state (already restored above)
     if (!publicRoutes.includes(to.path) && !auth.isLoggedIn) {
-        return navigateTo('/login')
+        return navigateTo('/welcome')
     }
 
     if (publicRoutes.includes(to.path) && auth.isLoggedIn) {

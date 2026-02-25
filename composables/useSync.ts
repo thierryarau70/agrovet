@@ -75,6 +75,8 @@ export const useSync = () => {
         const sb = getSupabase() as any
         appStore.isSyncing = true
         try {
+            const queue = await db.syncQueue.toArray()
+
             const [resProp, resLotes, resAnimais, resIatf, resSanidade] = await Promise.all([
                 sb.from('propriedades').select('*'),
                 sb.from('lotes').select('*'),
@@ -135,6 +137,28 @@ export const useSync = () => {
                     })))
                 }
             })
+
+            // Re-apply offline pending items from the syncQueue to local tables
+            if (queue.length > 0) {
+                await db.transaction('rw', [db.propriedades, db.lotes, db.animais, db.iatfRecords, db.sanidade], async () => {
+                    for (const item of queue) {
+                        try {
+                            const table = (db as any)[item.table]
+                            if (!table) continue
+
+                            if (item.action === 'delete') {
+                                await table.delete(item.recordId)
+                            } else {
+                                // create or update
+                                await table.put({ ...item.data, id: item.recordId, synced: false })
+                            }
+                        } catch (err) {
+                            console.warn('Failed restoring local pending fix for queue item:', item, err)
+                        }
+                    }
+                })
+            }
+
             appStore.notify('Dados atualizados da nuvem ✓', 'success')
         } catch (e) {
             console.error('Error pulling from server:', e)

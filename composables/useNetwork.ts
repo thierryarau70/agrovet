@@ -1,10 +1,14 @@
 // composables/useNetwork.ts
-export const useNetwork = () => {
-    const isOnline = ref(typeof navigator !== 'undefined' ? navigator.onLine : true)
+import { ref } from 'vue'
 
-    if (import.meta.client) {
-        useEventListener(window, 'online', () => { isOnline.value = true })
-        useEventListener(window, 'offline', () => { isOnline.value = false })
+const isOnline = ref(typeof navigator !== 'undefined' ? navigator.onLine : true)
+let listenersAdded = false
+
+export const useNetwork = () => {
+    if (import.meta.client && !listenersAdded) {
+        listenersAdded = true
+        window.addEventListener('online', () => { isOnline.value = true })
+        window.addEventListener('offline', () => { isOnline.value = false })
     }
 
     return { isOnline }

@@ -61,13 +61,22 @@
 
       <div style="margin-top:1.25rem; text-align:center;">
         <span style="font-size:0.875rem; color:var(--ag-text-3);">
-          Já tem conta?
-          <NuxtLink to="/login" style="color:var(--ag-primary); font-weight:600; text-decoration:none;">Entrar</NuxtLink>
+          Já possui conta?
+          <NuxtLink to="/login" style="color:var(--ag-primary); font-weight:600; text-decoration:none;">
+            Faça login
+          </NuxtLink>
         </span>
       </div>
     </div>
 
-    <p style="color:var(--ag-text-3); font-size:0.75rem; margin-top:1.5rem;">Agrovet v2.0 • Funciona offline</p>
+    <div style="margin-top:1.5rem; text-align:center;">
+      <NuxtLink to="/welcome" style="color:var(--ag-text-3); font-size:0.8125rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.25rem;">
+        <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        Voltar ao início
+      </NuxtLink>
+    </div>
+
+    <p style="color:var(--ag-text-3); font-size:0.75rem; margin-top:1rem; text-align:center;">Agrovet v2.0 • Sistema em Nuvem</p>
   </div>
 </template>
 

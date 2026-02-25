@@ -26,7 +26,7 @@ export default defineNuxtConfig({
   ssr: false,
 
   srcDir: '.',
-  css: ['~/assets/css/main.css', 'primeicons/primeicons.css'],
+  css: ['~/assets/css/main.css'],
 
   imports: {
     dirs: ['stores'],
