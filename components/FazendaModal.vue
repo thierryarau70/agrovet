@@ -5,20 +5,20 @@
       <form @submit.prevent="askCreate" style="display:flex; flex-direction:column; gap:1rem;">
         <div>
           <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Nome da Fazenda *</label>
-          <InputText v-model="form.nome" placeholder="Ex: Fazenda São João" required style="width:100%;" />
+          <InputText v-model="form.nome" placeholder="Ex: Fazenda São João" required maxlength="50" style="width:100%;" />
         </div>
         <div>
           <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Proprietário *</label>
-          <InputText v-model="form.proprietario" placeholder="Nome completo" required style="width:100%;" />
+          <InputText v-model="form.proprietario" placeholder="Nome completo" required maxlength="50" style="width:100%;" />
         </div>
         <div style="display:grid; grid-template-columns:1fr 80px; gap:0.75rem;">
           <div>
             <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Município</label>
-            <InputText v-model="form.municipio" placeholder="Cidade" style="width:100%;" />
+            <InputText v-model="form.municipio" placeholder="Cidade" maxlength="50" style="width:100%;" />
           </div>
           <div>
             <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Estado</label>
-            <InputText v-model="form.estado" v-maska="'@@'" placeholder="UF" style="width:100%; text-transform:uppercase;" />
+            <InputText v-model="form.estado" v-maska="'@@'" placeholder="UF" maxlength="2" style="width:100%; text-transform:uppercase;" />
           </div>
         </div>
       </form>

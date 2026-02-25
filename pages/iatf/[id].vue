@@ -46,7 +46,7 @@
             <div class="ag-form-grid">
               <div>
                 <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Proprietario</label>
-                <InputText v-model="form.proprietario" placeholder="Digite..." style="width:100%;" />
+                <InputText v-model="form.proprietario" placeholder="Digite..." maxlength="50" style="width:100%;" />
               </div>
               <div>
                 <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Propriedade</label>
@@ -58,11 +58,11 @@
               </div>
               <div>
                 <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Categoria</label>
-                <InputText v-model="form.categoria" placeholder="Ex: Novilhas" style="width:100%;" />
+                <InputText v-model="form.categoria" placeholder="Ex: Novilhas" maxlength="50" style="width:100%;" />
               </div>
               <div>
                 <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Retiro</label>
-                <InputText v-model="form.retiro" placeholder="Pasto 1" style="width:100%;" />
+                <InputText v-model="form.retiro" placeholder="Pasto 1" maxlength="50" style="width:100%;" />
               </div>
             </div>
           </div>
@@ -148,7 +148,7 @@
                   </div>
                   <div style="display:flex; align-items:center; gap:0.5rem;">
                     <span style="font-size:0.7rem; color:var(--ag-text-3); width:28px;">&#9794;:</span>
-                    <input v-model="form.touroImplante" placeholder="Nome/ID Touro" class="ag-input-neat" style="padding:0.3rem 0.5rem;" />
+                    <input v-model="form.touroImplante" placeholder="Nome/ID Touro" maxlength="20" class="ag-input-neat" style="padding:0.3rem 0.5rem;" />
                   </div>
                 </div>
               </div>
@@ -235,7 +235,7 @@
                   </tr>
                   <tr v-for="(animal, i) in form.animais" :key="i">
                     <td style="text-align:center; font-weight:700; color:var(--ag-text-3); font-size:0.75rem;">{{ animal.ord }}</td>
-                    <td><input v-model="animal.femea" placeholder="ID/Tag" class="ag-input-neat" style="padding:0.4rem; font-weight:600; text-align:center;" /></td>
+                    <td><input v-model="animal.femea" placeholder="ID/Tag" maxlength="20" class="ag-input-neat" style="padding:0.4rem; font-weight:600; text-align:center;" /></td>
                     <td style="padding:0;">
                       <button
                         class="ag-dg-btn"
@@ -249,9 +249,9 @@
                     <td><input type="date" v-model="animal.dg35" class="ag-input-neat" style="padding:0.4rem;" /></td>
                     <td><input type="date" v-model="animal.d8" class="ag-input-neat" style="padding:0.4rem;" /></td>
                     <td><input type="date" v-model="animal.gnrh" class="ag-input-neat" style="padding:0.4rem;" /></td>
-                    <td><input v-model="animal.touro" placeholder="Tag" class="ag-input-neat" style="padding:0.4rem; text-align:center;" /></td>
-                    <td><input v-model="animal.partida" placeholder="No" class="ag-input-neat" style="padding:0.4rem; text-align:center;" /></td>
-                    <td><input v-model="animal.obs" placeholder="..." class="ag-input-neat" style="padding:0.4rem;" /></td>
+                    <td><input v-model="animal.touro" placeholder="Tag" maxlength="20" class="ag-input-neat" style="padding:0.4rem; text-align:center;" /></td>
+                    <td><input v-model="animal.partida" placeholder="No" maxlength="20" class="ag-input-neat" style="padding:0.4rem; text-align:center;" /></td>
+                    <td><input v-model="animal.obs" placeholder="..." maxlength="100" class="ag-input-neat" style="padding:0.4rem;" /></td>
                     <td style="text-align:center;">
                       <button @click="removeAnimal(i)" style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem; font-size:0.75rem; transition:color 0.2s;"
                         onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--ag-text-3)'">

@@ -9,7 +9,7 @@
         </div>
         <div>
           <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Identificação (Fêmea) *</label>
-          <InputText v-model="form.femea" placeholder="Ex: 123, TAG-456" required style="width:100%;" />
+          <InputText v-model="form.femea" placeholder="Ex: 123, TAG-456" required maxlength="20" style="width:100%;" />
         </div>
         <div>
           <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Categoria</label>
@@ -17,7 +17,7 @@
         </div>
         <div>
           <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Observação</label>
-          <Textarea v-model="form.observacao" rows="2" placeholder="Opcional..." style="width:100%;" />
+          <Textarea v-model="form.observacao" rows="2" placeholder="Opcional..." maxlength="100" style="width:100%;" />
         </div>
       </form>
       <template #footer>

@@ -9,7 +9,7 @@
         </div>
         <div>
           <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Nome do Lote *</label>
-          <InputText v-model="form.nome" placeholder="Ex: Lote A1" required style="width:100%;" />
+          <InputText v-model="form.nome" placeholder="Ex: Lote A1" required maxlength="50" style="width:100%;" />
         </div>
         <div>
           <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Categoria *</label>
@@ -17,7 +17,7 @@
         </div>
         <div>
           <label style="display:block; font-size:0.8125rem; font-weight:500; color:var(--ag-text-2); margin-bottom:0.375rem;">Retiro</label>
-          <InputText v-model="form.retiro" placeholder="Nome do retiro (opcional)" style="width:100%;" />
+          <InputText v-model="form.retiro" placeholder="Nome do retiro (opcional)" maxlength="50" style="width:100%;" />
         </div>
       </form>
       <template #footer>
