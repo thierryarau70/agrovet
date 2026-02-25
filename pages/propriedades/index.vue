@@ -42,33 +42,23 @@
 
     <!-- Criar Modal -->
     <FazendaModal v-model="showModal" @saved="load" />
-
-    <!-- Confirmação Deletar -->
-    <AppConfirmModal
-      v-model="confirmDelete"
-      title="Excluir Fazenda?"
-      :message="`Tem certeza que deseja excluir a fazenda &quot;${targetToDelete?.nome}&quot;? Esta ação não pode ser desfeita.`"
-      type="danger"
-      confirm-label="Excluir"
-      @confirm="doDelete"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
 import Button from 'primevue/button'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
 
 definePageMeta({ layout: 'default' })
 
 const appStore = useAppStore()
+const confirm = useConfirm()
+const toast = useToast()
 
 const showModal = ref(false)
 const propriedades = ref<any[]>([])
-
-// Confirm states
-const confirmDelete = ref(false)
-const targetToDelete = ref<any>(null)
 
 const load = async () => { propriedades.value = await db.propriedades.toArray() }
 
@@ -77,16 +67,23 @@ const openModal = () => {
 }
 
 const askDelete = (p: any) => {
-  targetToDelete.value = p
-  confirmDelete.value = true
-}
-
-const doDelete = async () => {
-  if (!targetToDelete.value) return
-  await db.propriedades.delete(targetToDelete.value.id)
-  await load()
-  appStore.notify('Fazenda excluída.', 'info')
-  targetToDelete.value = null
+  confirm.require({
+    message: `Tem certeza que deseja excluir a fazenda "${p.nome}"? Esta ação não pode ser desfeita e excluirá também todos os lotes e animais vinculados.`,
+    header: 'Excluir Fazenda?',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    acceptLabel: 'Excluir',
+    rejectLabel: 'Cancelar',
+    accept: async () => {
+      try {
+        await db.propriedades.delete(p.id)
+        await load()
+        appStore.notify('Fazenda excluída.', 'info')
+      } catch (e) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível excluir a fazenda.' })
+      }
+    }
+  })
 }
 
 onMounted(load)

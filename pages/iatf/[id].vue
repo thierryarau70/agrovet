@@ -185,7 +185,10 @@
                 ANIMAIS
                 <span style="background:var(--ag-primary); color:#fff; border-radius:9999px; font-size:0.65rem; padding:0.1rem 0.4rem; margin-left:0.25rem;">{{ form.animais.length }}</span>
               </span>
-              <Button size="small" label="+ Adicionar Animal" @click="addAnimal" />
+              <div style="display:flex; gap:0.5rem;">
+                <Button size="small" severity="secondary" outlined icon="pi pi-download" label="Importar do Lote" @click="importarAnimaisDoLote" />
+                <Button size="small" icon="pi pi-plus" label="Novo Animal" @click="addAnimal" />
+              </div>
             </div>
             <div style="overflow-x:auto;">
               <table class="ag-table" style="min-width:680px;">
@@ -292,18 +295,6 @@
       </button>
     </div>
 
-    <!-- Confirm Save -->
-    <AppConfirmModal
-      v-model="confirmSave"
-      :title="isNew ? 'Salvar novo protocolo?' : 'Atualizar protocolo?'"
-      :message="isNew
-        ? `Deseja criar um novo protocolo IATF para ${form.propriedade || 'a fazenda selecionada'} com ${form.animais.length} animal(is)?`
-        : `Deseja salvar as alteracoes no protocolo de ${form.propriedade || 'a fazenda selecionada'} (${form.animais.length} animais)?`
-      "
-      type="success"
-      :confirm-label="isNew ? 'Criar Protocolo' : 'Salvar Alteracoes'"
-      @confirm="saveRecord"
-    />
   </div>
 </template>
 
@@ -313,17 +304,18 @@ import type { IatfAnimal } from '~/plugins/dexie.client'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
+import { useConfirm } from 'primevue/useconfirm'
 
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
+const confirm = useConfirm()
 const { addToQueue } = useSync()
 
 const isNew = computed(() => route.params.id === 'novo')
 const saving = ref(false)
-const confirmSave = ref(false)
 
 // ─── Stepper Logic ───
 const totalSteps = 4
@@ -384,7 +376,17 @@ const goToStep = (step: number) => {
 // ─── Form Logic ───
 const askSave = () => {
   if (!form.proprietario) { appStore.notify('Preencha o proprietario.', 'error'); return }
-  confirmSave.value = true
+  confirm.require({
+    message: isNew.value
+      ? `Deseja criar um novo protocolo IATF para ${form.propriedade || 'a fazenda selecionada'} com ${form.animais.length} animal(is)?`
+      : `Deseja salvar as alteracoes no protocolo de ${form.propriedade || 'a fazenda selecionada'} (${form.animais.length} animais)?`,
+    header: isNew.value ? 'Salvar novo protocolo?' : 'Atualizar protocolo?',
+    icon: 'pi pi-check-circle',
+    acceptClass: 'p-button-success',
+    acceptLabel: isNew.value ? 'Criar Protocolo' : 'Salvar Alteracoes',
+    rejectLabel: 'Cancelar',
+    accept: saveRecord
+  })
 }
 
 const propriedades = ref<any[]>([])
@@ -443,6 +445,41 @@ const bulkAddAnimals = () => {
   }
 }
 
+const importarAnimaisDoLote = async () => {
+  if (!form.loteId) {
+    appStore.notify('Nenhum lote selecionado no Passo 1.', 'warning')
+    return
+  }
+  const animaisDoLote = await db.animais.where('loteId').equals(Number(form.loteId)).toArray()
+  
+  if (animaisDoLote.length === 0) {
+    appStore.notify('Não há animais cadastrados neste lote.', 'info')
+    return
+  }
+
+  let adicionados = 0
+  const start = form.animais.length
+  
+  animaisDoLote.forEach(a => {
+    // Evitar duplicatas pela tag (femea)
+    const jaExiste = form.animais.some(f => String(f.femea).trim().toLowerCase() === String(a.femea).trim().toLowerCase())
+    if (!jaExiste) {
+      form.animais.push({
+        ord: start + adicionados + 1,
+        femea: a.femea,
+        d0dg: '', dg35: '', d8: '', gnrh: '', touro: '', partida: '', obs: '', dg_status: undefined
+      })
+      adicionados++
+    }
+  })
+
+  if (adicionados > 0) {
+    appStore.notify(`${adicionados} animais importados com sucesso!`, 'success')
+  } else {
+    appStore.notify('Todos os animais deste lote já estão listados.', 'info')
+  }
+}
+
 const bulkFillDate = (field: 'd0dg' | 'dg35' | 'd8' | 'gnrh') => {
   if (form.animais.length === 0) return
   const firstAnimal = form.animais[0]
@@ -473,12 +510,13 @@ const saveRecord = async () => {
       const id = await db.iatfRecords.add(data)
       await addToQueue('create', 'iatfRecords', id as number, data)
       appStore.notify('Protocolo IATF salvo!', 'success')
-      await router.push(`/iatf/${id}`)
+      await router.push(`/iatf/detalhes/${id}`)
     } else {
       const id = Number(route.params.id)
       await db.iatfRecords.update(id, { ...data, updatedAt: now })
       await addToQueue('update', 'iatfRecords', id, data)
       appStore.notify('Protocolo atualizado!', 'success')
+      await router.push(`/iatf/detalhes/${id}`)
     }
 
     const animaisNoLote = await db.animais.where('loteId').equals(Number(form.loteId)).toArray()

@@ -38,33 +38,24 @@
 
     <!-- Criar Modal -->
     <LoteModal v-model="showModal" @saved="load" />
-
-    <!-- Confirmação Deletar -->
-    <AppConfirmModal
-      v-model="confirmDelete"
-      title="Excluir Lote?"
-      :message="`Tem certeza que deseja excluir o lote &quot;${targetToDelete?.nome}&quot;? Esta ação não pode ser desfeita.`"
-      type="danger"
-      confirm-label="Excluir"
-      @confirm="doDelete"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
 import Button from 'primevue/button'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
 
 definePageMeta({ layout: 'default' })
 
 const appStore = useAppStore()
+const confirm = useConfirm()
+const toast = useToast()
 
 const showModal = ref(false)
 const lotes = ref<any[]>([])
 const propriedades = ref<any[]>([])
-
-const confirmDelete = ref(false)
-const targetToDelete = ref<any>(null)
 
 const getNomeFazenda = (id: number) => propriedades.value.find(p => p.id === id)?.nome ?? '—'
 
@@ -78,16 +69,23 @@ const openModal = () => {
 }
 
 const askDelete = (l: any) => {
-  targetToDelete.value = l
-  confirmDelete.value = true
-}
-
-const doDelete = async () => {
-  if (!targetToDelete.value) return
-  await db.lotes.delete(targetToDelete.value.id)
-  await load()
-  appStore.notify('Lote excluído.', 'info')
-  targetToDelete.value = null
+  confirm.require({
+    message: `Tem certeza que deseja excluir o lote "${l.nome}"? Esta ação não pode ser desfeita e excluirá também todos os animais vinculados.`,
+    header: 'Excluir Lote?',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    acceptLabel: 'Excluir',
+    rejectLabel: 'Cancelar',
+    accept: async () => {
+      try {
+        await db.lotes.delete(l.id)
+        await load()
+        appStore.notify('Lote excluído.', 'info')
+      } catch (e) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível excluir o lote.' })
+      }
+    }
+  })
 }
 
 onMounted(load)

@@ -37,6 +37,11 @@ export const useSync = () => {
                     await sb.from('animais').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, lote_id: loteId, user_id: userId, id: item.recordId })
                     await db.animais.update(item.recordId, { synced: true })
                 }
+                else if (item.table === 'sanidade') {
+                    const { createdAt, updatedAt, synced, animalId, ...rest } = item.data
+                    await sb.from('sanidade').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, "animalId": animalId, user_id: userId, id: item.recordId })
+                    await db.sanidade.update(item.recordId, { synced: true })
+                }
                 else if (item.table === 'iatfRecords') {
                     await sb.from('iatf_records').upsert({
                         id: item.recordId,
@@ -70,16 +75,16 @@ export const useSync = () => {
         const sb = getSupabase() as any
         appStore.isSyncing = true
         try {
-            // Fetch all user data
-            const [resProp, resLotes, resAnimais, resIatf] = await Promise.all([
+            const [resProp, resLotes, resAnimais, resIatf, resSanidade] = await Promise.all([
                 sb.from('propriedades').select('*'),
                 sb.from('lotes').select('*'),
                 sb.from('animais').select('*'),
                 sb.from('iatf_records').select('*'),
+                sb.from('sanidade').select('*'),
             ])
 
             // Overwrite local indexedDB with user data from Supabase
-            await db.transaction('rw', db.propriedades, db.lotes, db.animais, db.iatfRecords, async () => {
+            await db.transaction('rw', [db.propriedades, db.lotes, db.animais, db.iatfRecords, db.sanidade], async () => {
                 if (resProp.data) {
                     await db.propriedades.clear()
                     await db.propriedades.bulkAdd(resProp.data.map((d: any) => ({
@@ -116,6 +121,16 @@ export const useSync = () => {
                         ...r.data,
                         loteId: r.lote_id,
                         propriedadeId: r.propriedade_id,
+                        synced: true,
+                    })))
+                }
+                if (resSanidade.data) {
+                    await db.sanidade.clear()
+                    await db.sanidade.bulkAdd(resSanidade.data.map((d: any) => ({
+                        ...d,
+                        animalId: d.animalId || d['animalId'],
+                        createdAt: d.created_at || new Date().toISOString(),
+                        updatedAt: d.updated_at || new Date().toISOString(),
                         synced: true,
                     })))
                 }

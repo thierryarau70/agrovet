@@ -20,8 +20,8 @@
             <h2 style="font-size:1.25rem; font-weight:700; color:var(--ag-text); margin:0;">Fêmea: {{ animal.femea }}</h2>
             <p style="font-size:0.8125rem; color:var(--ag-text-2); margin:0.25rem 0 0;">Lote: {{ getNomeLote(animal.loteId) }}</p>
           </div>
-          <span v-if="animal.status_prenhez" :class="['ag-badge', animal.status_prenhez === 'Prenhe' ? 'ag-badge-green' : 'ag-badge-yellow']" style="font-size:0.75rem; padding:0.2rem 0.6rem;">
-            {{ animal.status_prenhez }}
+          <span :class="['ag-badge', animal.status_prenhez === 'Prenhe' ? 'ag-badge-green' : (animal.status_prenhez === 'Vazia' ? 'ag-badge-yellow' : 'ag-badge-gray')]" style="font-size:0.75rem; padding:0.2rem 0.6rem; background: var(--ag-bg-2); color: var(--ag-text-2); border-color: var(--ag-border);">
+            {{ animal.status_prenhez || 'S/ Diagnóstico' }}
           </span>
         </div>
         
@@ -37,9 +37,27 @@
         </div>
       </div>
 
-      <!-- Timeline de Protocolos -->
-      <div>
-        <p class="ag-section-title">Participações em IATF</p>
+      <!-- Tabs -->
+      <div style="display:flex; gap:1rem; border-bottom:1px solid var(--ag-border); margin-bottom:1.25rem;">
+        <button 
+          :class="['ag-tab-btn', activeTab === 'reprodutivo' ? 'active' : '']"
+          @click="activeTab = 'reprodutivo'"
+        >
+          Reprodutivo
+        </button>
+        <button 
+          :class="['ag-tab-btn', activeTab === 'sanidade' ? 'active' : '']"
+          @click="activeTab = 'sanidade'"
+        >
+          Sanidade
+        </button>
+      </div>
+
+      <!-- Tab Content: Reprodutivo -->
+      <div v-if="activeTab === 'reprodutivo'">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:0.5rem;">
+          <p class="ag-section-title" style="margin:0;">Participações em IATF</p>
+        </div>
         <div v-if="historico.length === 0" class="ag-card" style="text-align:center; padding:2rem 1rem; color:var(--ag-text-3); font-size:0.875rem;">
           Este animal não participou de nenhum protocolo ainda.
         </div>
@@ -72,22 +90,94 @@
           </div>
         </div>
       </div>
+
+      <!-- Tab Content: Sanidade -->
+      <div v-if="activeTab === 'sanidade'">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:0.5rem;">
+          <p class="ag-section-title" style="margin:0;">Registros de Saúde</p>
+          <Button size="small" icon="pi pi-plus" label="Novo" @click="showSanidadeModal = true" />
+        </div>
+        
+        <div v-if="registrosSanidade.length === 0" class="ag-card" style="text-align:center; padding:2rem 1rem; color:var(--ag-text-3); font-size:0.875rem;">
+          Nenhum registro de saúde cadastrado para esta fêmea.
+        </div>
+        
+        <div v-else style="display:flex; flex-direction:column; gap:0.75rem;">
+          <div v-for="reg in registrosSanidade" :key="reg.id" class="ag-card" style="display:flex; flex-direction:column; gap:0.5rem; border-left:4px solid var(--ag-primary);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <span class="ag-badge" style="background:var(--ag-primary-light); color:var(--ag-primary);">{{ reg.tipo }}</span>
+              <span style="font-size:0.75rem; color:var(--ag-text-3); font-weight:600;">{{ formatData(reg.data) }}</span>
+            </div>
+            <p style="font-size:0.875rem; color:var(--ag-text); margin:0;">{{ reg.descricao }}</p>
+            <div v-if="reg.custo" style="font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-top:0.25rem;">
+              Custo: R$ {{ reg.custo.toFixed(2) }}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    
+    <!-- Modal Sanidade -->
+    <AppModal v-model="showSanidadeModal" title="Novo Registro de Saúde">
+      <div style="display:flex; flex-direction:column; gap:1.25rem;">
+        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+          <label class="ag-label" style="margin:0;">Tipo de Manejo</label>
+          <Select v-model="formSanidade.tipo" :options="['Vacina', 'Vermífugo', 'Tratamento', 'Outro']" placeholder="Selecione..." style="width:100%" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+          <label class="ag-label" style="margin:0;">Data</label>
+          <InputText v-model="formSanidade.data" type="date" style="width:100%" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+          <label class="ag-label" style="margin:0;">Descrição (Medicamento, dosagem...)</label>
+          <InputText v-model="formSanidade.descricao" type="text" placeholder="Ex: Ivermectina 1%" style="width:100%" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+          <label class="ag-label" style="margin:0;">Custo (Opcional - R$)</label>
+          <InputText v-model="formSanidade.custo" type="number" step="0.01" placeholder="0.00" style="width:100%" />
+        </div>
+      </div>
+      <template #footer>
+        <div style="display:flex; gap:1rem; width:100%; margin-top:1rem;">
+          <Button label="Cancelar" outlined @click="showSanidadeModal = false" style="flex:1" severity="secondary" />
+          <Button label="Salvar" :loading="saving" @click="salvarSanidade" style="flex:1" />
+        </div>
+      </template>
+    </AppModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
+import Button from 'primevue/button'
+import AppModal from '~/components/AppModal.vue'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import { useSync } from '~/composables/useSync'
 
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
 const router = useRouter()
+const { addToQueue } = useSync()
+const appStore = useAppStore()
 
 const animal = ref<any>(null)
 const lotes = ref<any[]>([])
 const propriedades = ref<any[]>([])
 const historico = ref<any[]>([])
+
+// Sanidade Refs
+const activeTab = ref('reprodutivo')
+const showSanidadeModal = ref(false)
+const saving = ref(false)
+const registrosSanidade = ref<any[]>([])
+const formSanidade = ref({
+  tipo: '',
+  data: new Date().toISOString().split('T')[0],
+  descricao: '',
+  custo: ''
+})
 
 const getNomeLote = (id: number) => lotes.value.find(l => l.id === id)?.nome ?? '—'
 const getNomeFazenda = (id: number) => propriedades.value.find(p => p.id === id)?.nome ?? '—'
@@ -96,6 +186,51 @@ const formatData = (isoDate: string) => {
   if (!isoDate) return ''
   const [y, m, d] = isoDate.split('-')
   return `${d}/${m}/${y}`
+}
+
+const loadSanidade = async (animalId: number) => {
+  const registros = await db.sanidade.where('animalId').equals(animalId).toArray()
+  // Ordenar mais recente primeiro
+  registrosSanidade.value = registros.sort((a,b) => new Date(b.data).getTime() - new Date(a.data).getTime())
+}
+
+const salvarSanidade = async () => {
+  if (!formSanidade.value.tipo || !formSanidade.value.data || !formSanidade.value.descricao) {
+    appStore.notify('Preencha os campos obrigatórios (Tipo, Data, Descrição).', 'warning')
+    return
+  }
+  
+  saving.value = true
+  try {
+    const novoRegistro = {
+      animalId: animal.value.id,
+      tipo: formSanidade.value.tipo as any,
+      data: formSanidade.value.data,
+      descricao: formSanidade.value.descricao,
+      custo: formSanidade.value.custo ? Number(formSanidade.value.custo) : 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      synced: false
+    }
+    
+    const id = await db.sanidade.add(novoRegistro)
+    await addToQueue('create', 'sanidade', id as number, novoRegistro)
+    
+    await loadSanidade(animal.value.id)
+    showSanidadeModal.value = false
+    formSanidade.value = {
+      tipo: '',
+      data: new Date().toISOString().split('T')[0],
+      descricao: '',
+      custo: ''
+    }
+    appStore.notify('Registro salvo com sucesso!', 'success')
+  } catch (e) {
+    console.error(e)
+    appStore.notify('Erro ao salvar registro de saúde.', 'error')
+  } finally {
+    saving.value = false
+  }
 }
 
 onMounted(async () => {
@@ -127,6 +262,8 @@ onMounted(async () => {
   participacoes.sort((a, b) => new Date(b.protocolo.createdAt).getTime() - new Date(a.protocolo.createdAt).getTime())
   
   historico.value = participacoes
+  
+  await loadSanidade(animal.value.id)
 })
 </script>
 

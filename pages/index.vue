@@ -16,7 +16,7 @@
             <ThemeToggle />
             <button
               style="display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:0.5rem; border:1px solid var(--ag-border); background:var(--ag-bg-2); color:var(--ag-text-2); cursor:pointer; transition:all .2s;"
-              @click="confirmLogout = true"
+              @click="askLogout"
               title="Sair"
             >
               <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,16 +162,6 @@
     </div>
   </div>
 
-  <!-- Logout confirm -->
-  <AppConfirmModal
-    v-model="confirmLogout"
-    title="Sair da conta?"
-    message="Você será desconectado. Todos os dados salvos localmente permanecem intactos."
-    type="warning"
-    confirm-label="Sair"
-    @confirm="handleLogout"
-  />
-
   <FazendaModal v-model="showFazendaModal" @saved="load" />
   <LoteModal v-model="showLoteModal" @saved="load" />
   <AnimalModal v-model="showAnimalModal" @saved="load" />
@@ -180,12 +170,14 @@
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
 import { Doughnut, Bar } from 'vue-chartjs'
+import { useConfirm } from 'primevue/useconfirm'
 
 definePageMeta({ layout: 'default' })
 
 const auth = useAuthStore()
 const appStore = useAppStore()
 const { isOnline } = useNetwork()
+const confirm = useConfirm()
 
 const showFazendaModal = ref(false)
 const showLoteModal = ref(false)
@@ -214,11 +206,19 @@ const chartOptionsBar = { responsive: true, maintainAspectRatio: false, plugins:
 const recentIatf = ref<any[]>([])
 const pendingEvents = ref<{ date: Date; type: string; description: string; daysLeft: number }[]>([])
 
-const confirmLogout = ref(false)
-
-const handleLogout = async () => {
-  await auth.logout()
-  await navigateTo('/login')
+const askLogout = () => {
+  confirm.require({
+    message: 'Você será desconectado. Todos os dados salvos localmente (sem sincronizar) permanecem intactos para o próximo login.',
+    header: 'Sair da conta?',
+    icon: 'pi pi-sign-out',
+    acceptClass: 'p-button-danger',
+    acceptLabel: 'Sair',
+    rejectLabel: 'Cancelar',
+    accept: async () => {
+      await auth.logout()
+      await navigateTo('/login')
+    }
+  })
 }
 
 const load = async () => {

@@ -47,16 +47,6 @@
 
     <!-- Criar Modal -->
     <AnimalModal v-model="showModal" @saved="load" />
-
-    <!-- Confirmação Deletar -->
-    <AppConfirmModal
-      v-model="confirmDelete"
-      title="Excluir Animal?"
-      :message="`Tem certeza que deseja excluir a fêmea &quot;${targetToDelete?.femea}&quot;? Esta ação não pode ser desfeita.`"
-      type="danger"
-      confirm-label="Excluir"
-      @confirm="doDelete"
-    />
   </div>
 </template>
 
@@ -64,19 +54,20 @@
 import { db } from '~/plugins/dexie.client'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
 
 definePageMeta({ layout: 'default' })
 
 const appStore = useAppStore()
+const confirm = useConfirm()
+const toast = useToast()
 
 const showModal = ref(false)
 const animais = ref<any[]>([])
 const lotes = ref<any[]>([])
 const propriedades = ref<any[]>([])
 const search = ref('')
-
-const confirmDelete = ref(false)
-const targetToDelete = ref<any>(null)
 
 const filtered = computed(() =>
   animais.value.filter(a =>
@@ -100,16 +91,23 @@ const openModal = () => {
 }
 
 const askDelete = (a: any) => {
-  targetToDelete.value = a
-  confirmDelete.value = true
-}
-
-const doDelete = async () => {
-  if (!targetToDelete.value) return
-  await db.animais.delete(targetToDelete.value.id)
-  await load()
-  appStore.notify('Animal excluído.', 'info')
-  targetToDelete.value = null
+  confirm.require({
+    message: `Tem certeza que deseja excluir a fêmea "${a.femea}"? Esta ação não pode ser desfeita. Todos os registros de IATF e Sanidade desta fêmea serão perdidos.`,
+    header: 'Excluir Animal?',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    acceptLabel: 'Excluir',
+    rejectLabel: 'Cancelar',
+    accept: async () => {
+      try {
+        await db.animais.delete(a.id)
+        await load()
+        appStore.notify('Animal excluído.', 'info')
+      } catch (e) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível excluir o animal.' })
+      }
+    }
+  })
 }
 
 onMounted(load)

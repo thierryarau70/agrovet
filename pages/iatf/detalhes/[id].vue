@@ -8,6 +8,7 @@
     >
       <template #actions>
         <ThemeToggle />
+        <Button v-if="record" size="small" label="Apagar" @click="confirmDelete" severity="danger" outlined />
         <Button v-if="record" size="small" label="Editar" @click="goToEdit" severity="secondary" outlined />
       </template>
     </PageHeader>
@@ -116,11 +117,18 @@
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
 import Button from 'primevue/button'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
+import { useSync } from '~/composables/useSync'
 
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
 const router = useRouter()
+const confirm = useConfirm()
+const toast = useToast()
+const { addToQueue } = useSync()
+
 const record = ref<any>(null)
 
 const formatDate = (isoDate: string) => {
@@ -131,6 +139,28 @@ const formatDate = (isoDate: string) => {
 
 const goToEdit = () => {
   router.push(`/iatf/${record.value.id}`)
+}
+
+const confirmDelete = () => {
+  confirm.require({
+    message: 'Tem certeza que deseja apagar este protocolo? Esta ação não pode ser desfeita e os dados individuais dos animais não serão alterados.',
+    header: 'Confirmar Exclusão',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    acceptLabel: 'Sim, Apagar',
+    rejectLabel: 'Cancelar',
+    accept: async () => {
+      try {
+        const idToDelete = record.value.id
+        await db.iatfRecords.delete(idToDelete)
+        await addToQueue('delete', 'iatfRecords', idToDelete, null)
+        toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Protocolo IATF apagado', life: 3000 })
+        router.push('/iatf')
+      } catch (e) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível apagar o protocolo', life: 3000 })
+      }
+    }
+  })
 }
 
 onMounted(async () => {

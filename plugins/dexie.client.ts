@@ -79,6 +79,18 @@ export interface IatfAnimal {
     dg_status?: 'Prenhe' | 'Vazia'
 }
 
+export interface SanidadeRecord {
+    id?: number
+    animalId: number
+    tipo: 'Vacina' | 'Vermífugo' | 'Tratamento' | 'Outro'
+    data: string
+    descricao: string
+    custo?: number
+    createdAt: string
+    updatedAt: string
+    synced: boolean
+}
+
 export interface SyncQueueItem {
     id?: number
     action: 'create' | 'update' | 'delete'
@@ -94,6 +106,7 @@ class AgrovetDB extends Dexie {
     lotes!: Table<Lote>
     animais!: Table<Animal>
     iatfRecords!: Table<IatfRecord>
+    sanidade!: Table<SanidadeRecord>
     syncQueue!: Table<SyncQueueItem>
 
     constructor() {
@@ -104,6 +117,9 @@ class AgrovetDB extends Dexie {
             animais: '++id, loteId, femea, synced',
             iatfRecords: '++id, loteId, propriedadeId, synced, createdAt',
             syncQueue: '++id, action, table, recordId, timestamp',
+        })
+        this.version(2).stores({
+            sanidade: '++id, animalId, tipo, data, synced'
         })
     }
 }

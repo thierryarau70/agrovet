@@ -25,7 +25,10 @@
               <p style="font-weight:600; color:var(--ag-text); margin:0; font-size:0.9375rem;">{{ r.propriedade }}</p>
               <p style="font-size:0.75rem; color:var(--ag-text-3); margin:0.1rem 0 0;">Proprietário: {{ r.proprietario }}</p>
             </div>
-            <span :class="['ag-badge', r.synced ? 'ag-badge-green' : 'ag-badge-yellow']">{{ r.synced ? '✓ Sync' : '⏳' }}</span>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <span :class="['ag-badge', r.synced ? 'ag-badge-green' : 'ag-badge-yellow']">{{ r.synced ? '✓ Sync' : '⏳' }}</span>
+              <Button icon="pi pi-trash" severity="danger" text rounded aria-label="Apagar" @click.prevent="apagarProtocolo(r.id)" style="width:2rem; height:2rem; padding:0;" />
+            </div>
           </div>
           <div style="display:flex; flex-wrap:wrap; gap:0.375rem;">
             <span v-for="chip in [r.tipoInseminacao, `Lote: ${r.lote}`, `${r.animais?.length ?? 0} animais`, formatDate(r.createdAt)]" :key="chip"
@@ -42,14 +45,44 @@
 <script setup lang="ts">
 import { db } from '~/plugins/dexie.client'
 import Button from 'primevue/button'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
+import { useSync } from '~/composables/useSync'
 
 definePageMeta({ layout: 'default' })
 
 const records = ref<any[]>([])
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
 
-onMounted(async () => {
+const confirm = useConfirm()
+const toast = useToast()
+const { addToQueue } = useSync()
+
+const loadRecords = async () => {
   records.value = await db.iatfRecords.orderBy('createdAt').reverse().toArray()
-})
+}
+
+const apagarProtocolo = (id: number) => {
+  confirm.require({
+    message: 'Tem certeza que deseja apagar este protocolo? Esta ação não pode ser desfeita e os dados individuais dos animais não serão alterados.',
+    header: 'Confirmar Exclusão',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    acceptLabel: 'Sim, Apagar',
+    rejectLabel: 'Cancelar',
+    accept: async () => {
+      try {
+        await db.iatfRecords.delete(id)
+        await addToQueue('delete', 'iatfRecords', id, null)
+        toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Protocolo IATF apagado', life: 3000 })
+        await loadRecords()
+      } catch (e) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível apagar o protocolo', life: 3000 })
+      }
+    }
+  })
+}
+
+onMounted(loadRecords)
 </script>
 

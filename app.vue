@@ -2,6 +2,7 @@
   <div @click="onUserActivity" @keydown="onUserActivity" @touchstart="onUserActivity">
     <OfflineBanner />
     <AppNotifications />
+    <ConfirmDialog />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -9,6 +10,8 @@
 </template>
 
 <script setup lang="ts">
+import ConfirmDialog from 'primevue/confirmdialog'
+
 useHead({
   htmlAttrs: { lang: 'pt-BR' },
 })
