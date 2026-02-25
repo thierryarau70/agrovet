@@ -69,6 +69,7 @@ export const useSync = () => {
             }
             catch (error: any) {
                 console.error('Error syncing item:', item.table, error?.message || error)
+                appStore.notify(`Erro no sync (${item.table}): ${error?.message || JSON.stringify(error)}`, 'error')
                 await db.syncQueue.update(item.id!, { attempts: item.attempts + 1 })
             }
         }

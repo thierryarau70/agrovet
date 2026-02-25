@@ -504,9 +504,11 @@ const saveRecord = async () => {
   saving.value = true
   try {
     const now = new Date().toISOString()
+    const genId = Date.now() + Math.floor(Math.random() * 1000)
     const data = JSON.parse(JSON.stringify({ ...form, propriedadeId: Number(form.propriedadeId) || 0, loteId: Number(form.loteId) || 0, createdAt: now, updatedAt: now, synced: false }))
 
     if (isNew.value) {
+      data.id = genId
       const id = await db.iatfRecords.add(data)
       await addToQueue('create', 'iatfRecords', id as number, data)
       appStore.notify('Protocolo IATF salvo!', 'success')
@@ -547,6 +549,7 @@ const saveRecord = async () => {
         }
       } else {
         toCreate.push({ 
+          id: Date.now() + Math.floor(Math.random() * 1000) + Math.floor(Math.random() * 500),
           loteId: Number(form.loteId), 
           femea: femeaStr, 
           categoria: form.categoria || 'Não definida', 

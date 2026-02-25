@@ -83,7 +83,8 @@ const saveLote = async () => {
   emit('update:modelValue', false)
   try {
     const now = new Date().toISOString()
-    const dataToSave = { ...form, propriedadeId: Number(form.propriedadeId), createdAt: now, updatedAt: now, synced: false }
+    const genId = Date.now() + Math.floor(Math.random() * 1000)
+    const dataToSave = { id: genId, ...form, propriedadeId: Number(form.propriedadeId), createdAt: now, updatedAt: now, synced: false }
     const id = await db.lotes.add(dataToSave)
     await addToQueue('create', 'lotes', id as number, dataToSave)
     appStore.notify('Lote salvo!', 'success')
