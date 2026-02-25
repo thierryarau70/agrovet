@@ -43,12 +43,14 @@
           class="ag-stat-card"
           @click="navigateTo(stat.route)"
         >
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.375rem;">
-            <span style="font-size:1.5rem;">{{ stat.icon }}</span>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span style="font-size:1.5rem;">{{ stat.icon }}</span>
+              <span style="font-size:0.875rem; font-weight:600; color:var(--ag-text-2);">{{ stat.label }}</span>
+            </div>
             <span class="ag-badge ag-badge-green" style="font-size:0.65rem;">{{ stat.badge }}</span>
           </div>
-          <p style="font-size:1.625rem; font-weight:700; color:var(--ag-text); margin:0 0 .125rem;">{{ stat.value }}</p>
-          <p style="font-size:0.75rem; color:var(--ag-text-3); margin:0;">{{ stat.label }}</p>
+          <p style="font-size:1.75rem; font-weight:700; color:var(--ag-text); margin:0;">{{ stat.value }}</p>
         </div>
       </div>
 

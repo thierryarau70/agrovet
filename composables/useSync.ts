@@ -24,40 +24,45 @@ export const useSync = () => {
 
                 if (item.table === 'propriedades') {
                     const { createdAt, updatedAt, synced, ...rest } = item.data
-                    await sb.from('propriedades').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, user_id: userId, id: item.recordId })
+                    const res = await sb.from('propriedades').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, user_id: userId, id: item.recordId })
+                    if (res.error) throw res.error
                     await db.propriedades.update(item.recordId, { synced: true })
                 }
                 else if (item.table === 'lotes') {
                     const { createdAt, updatedAt, synced, propriedadeId, ...rest } = item.data
-                    await sb.from('lotes').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, propriedade_id: propriedadeId, user_id: userId, id: item.recordId })
+                    const res = await sb.from('lotes').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, propriedade_id: propriedadeId, user_id: userId, id: item.recordId })
+                    if (res.error) throw res.error
                     await db.lotes.update(item.recordId, { synced: true })
                 }
                 else if (item.table === 'animais') {
                     const { createdAt, updatedAt, synced, loteId, ...rest } = item.data
-                    await sb.from('animais').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, lote_id: loteId, user_id: userId, id: item.recordId })
+                    const res = await sb.from('animais').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, lote_id: loteId, user_id: userId, id: item.recordId })
+                    if (res.error) throw res.error
                     await db.animais.update(item.recordId, { synced: true })
                 }
                 else if (item.table === 'sanidade') {
                     const { createdAt, updatedAt, synced, animalId, ...rest } = item.data
-                    await sb.from('sanidade').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, "animalId": animalId, user_id: userId, id: item.recordId })
+                    const res = await sb.from('sanidade').upsert({ ...rest, created_at: createdAt, updated_at: updatedAt, "animalId": animalId, user_id: userId, id: item.recordId })
+                    if (res.error) throw res.error
                     await db.sanidade.update(item.recordId, { synced: true })
                 }
                 else if (item.table === 'iatfRecords') {
-                    await sb.from('iatf_records').upsert({
+                    const res = await sb.from('iatf_records').upsert({
                         id: item.recordId,
                         user_id: userId,
                         lote_id: item.data.loteId || null,
                         propriedade_id: item.data.propriedadeId || null,
                         data: item.data,
                     })
+                    if (res.error) throw res.error
                     await db.iatfRecords.update(item.recordId, { synced: true })
                 }
 
                 await db.syncQueue.delete(item.id!)
                 synced++
             }
-            catch (error) {
-                console.error('Error syncing item:', item.table, error)
+            catch (error: any) {
+                console.error('Error syncing item:', item.table, error?.message || error)
                 await db.syncQueue.update(item.id!, { attempts: item.attempts + 1 })
             }
         }

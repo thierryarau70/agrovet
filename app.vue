@@ -1,5 +1,6 @@
 <template>
   <div @click="onUserActivity" @keydown="onUserActivity" @touchstart="onUserActivity">
+    <VitePwaManifest />
     <OfflineBanner />
     <AppNotifications />
     <ConfirmDialog />

@@ -75,8 +75,9 @@ const saveProp = async () => {
   emit('update:modelValue', false)
   try {
     const now = new Date().toISOString()
-    const id = await db.propriedades.add({ ...form, createdAt: now, updatedAt: now, synced: false })
-    await addToQueue('create', 'propriedades', id as number, { ...form })
+    const dataToSave = { ...form, createdAt: now, updatedAt: now, synced: false }
+    const id = await db.propriedades.add(dataToSave)
+    await addToQueue('create', 'propriedades', id as number, dataToSave)
     appStore.notify('Fazenda salva com sucesso!', 'success')
     Object.assign(form, { nome: '', proprietario: '', municipio: '', estado: '' })
     emit('saved')
