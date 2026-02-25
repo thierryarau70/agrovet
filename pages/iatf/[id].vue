@@ -194,10 +194,30 @@
                     <th style="width:2.5rem;">ORD</th>
                     <th>Femea</th>
                     <th>Res. DG</th>
-                    <th style="color:var(--ag-primary);">D-0+DG</th>
-                    <th style="color:var(--ag-primary);">DG 35</th>
-                    <th style="color:var(--ag-primary);">D-8</th>
-                    <th style="color:var(--ag-primary);">GnRH</th>
+                    <th style="color:var(--ag-primary);">
+                      D-0+DG
+                      <button @click="bulkFillDate('d0dg')" style="background:none; border:none; color:var(--ag-primary); cursor:pointer; padding:0; margin-left:2px;" title="Copiar da 1ª linha para todas">
+                        <svg style="width:14px;height:14px;display:inline-block;vertical-align:middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                      </button>
+                    </th>
+                    <th style="color:var(--ag-primary);">
+                      DG 35
+                      <button @click="bulkFillDate('dg35')" style="background:none; border:none; color:var(--ag-primary); cursor:pointer; padding:0; margin-left:2px;" title="Copiar da 1ª linha para todas">
+                        <svg style="width:14px;height:14px;display:inline-block;vertical-align:middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                      </button>
+                    </th>
+                    <th style="color:var(--ag-primary);">
+                      D-8
+                      <button @click="bulkFillDate('d8')" style="background:none; border:none; color:var(--ag-primary); cursor:pointer; padding:0; margin-left:2px;" title="Copiar da 1ª linha para todas">
+                        <svg style="width:14px;height:14px;display:inline-block;vertical-align:middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                      </button>
+                    </th>
+                    <th style="color:var(--ag-primary);">
+                      GnRH
+                      <button @click="bulkFillDate('gnrh')" style="background:none; border:none; color:var(--ag-primary); cursor:pointer; padding:0; margin-left:2px;" title="Copiar da 1ª linha para todas">
+                        <svg style="width:14px;height:14px;display:inline-block;vertical-align:middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                      </button>
+                    </th>
                     <th>Touro</th>
                     <th>Partida</th>
                     <th>Obs</th>
@@ -317,8 +337,27 @@ const steps = [
   { title: 'Animais' },
 ]
 
+const validateStep = (step: number) => {
+  if (step === 1) {
+    if (!form.proprietario) { appStore.notify('Preencha o proprietário.', 'error'); return false; }
+    if (!form.propriedadeId) { appStore.notify('Selecione a propriedade.', 'error'); return false; }
+    if (!form.loteId) { appStore.notify('Selecione o lote.', 'error'); return false; }
+    if (!form.categoria) { appStore.notify('Preencha a categoria.', 'error'); return false; }
+    return true;
+  }
+  if (step === 3) {
+    if (!form.dataImplante) { appStore.notify('Preencha a data do implante (D-0).', 'error'); return false; }
+    if (!form.dataRetirada) { appStore.notify('Preencha a data de retirada (D-8).', 'error'); return false; }
+    if (!form.dataPrimeiraIa) { appStore.notify('Preencha a data da 1ª IA.', 'error'); return false; }
+    if (!form.dataDg) { appStore.notify('Preencha a data da DG Prevista.', 'error'); return false; }
+    return true;
+  }
+  return true;
+}
+
 const nextStep = () => {
   if (currentStep.value < totalSteps) {
+    if (!validateStep(currentStep.value)) return
     slideDirection.value = 'slide-left'
     currentStep.value++
   }
@@ -333,6 +372,11 @@ const prevStep = () => {
 
 const goToStep = (step: number) => {
   if (step === currentStep.value) return
+  if (step > currentStep.value) {
+    for (let i = currentStep.value; i < step; i++) {
+      if (!validateStep(i)) return
+    }
+  }
   slideDirection.value = step > currentStep.value ? 'slide-left' : 'slide-right'
   currentStep.value = step
 }
@@ -399,6 +443,20 @@ const bulkAddAnimals = () => {
   }
 }
 
+const bulkFillDate = (field: 'd0dg' | 'dg35' | 'd8' | 'gnrh') => {
+  if (form.animais.length === 0) return
+  const firstAnimal = form.animais[0]
+  if (!firstAnimal) return
+  
+  const firstVal = (firstAnimal as any)[field]
+  if (!firstVal) {
+    appStore.notify('Preencha a data no primeiro animal para replicar às demais.', 'warning')
+    return
+  }
+  form.animais.forEach(a => (a as any)[field] = firstVal)
+  appStore.notify('Datas replicadas para todos os animais.', 'success')
+}
+
 const removeAnimal = (index: number) => {
   form.animais.splice(index, 1)
   form.animais.forEach((a, i) => (a.ord = i + 1))
@@ -425,20 +483,59 @@ const saveRecord = async () => {
 
     const animaisNoLote = await db.animais.where('loteId').equals(Number(form.loteId)).toArray()
     const toUpdate: any[] = [], toCreate: any[] = []
+    
     for (const a of data.animais) {
       if (!a.femea) continue
-      const match = animaisNoLote.find(dbA => String(dbA.femea).trim() === String(a.femea).trim())
+      const femeaStr = String(a.femea).trim()
+      const match = animaisNoLote.find(dbA => String(dbA.femea).trim() === femeaStr)
+      
       if (match) {
+        let needsUpdate = false
+        // Update DG status if present and different
         if (a.dg_status && match.status_prenhez !== a.dg_status) {
-          match.status_prenhez = a.dg_status; match.updatedAt = now; toUpdate.push(match)
+          match.status_prenhez = a.dg_status
+          needsUpdate = true
+        }
+        // Also update observation if present and different
+        if (a.obs && match.observacao !== a.obs) {
+          match.observacao = a.obs
+          needsUpdate = true
+        }
+        
+        if (needsUpdate) {
+          match.updatedAt = now
+          match.synced = false // Force resync of animal when updating from IATF
+          toUpdate.push(match)
         }
       } else {
-        toCreate.push({ loteId: Number(form.loteId), femea: String(a.femea).trim(), categoria: form.categoria || 'Nao definida', ord: Number(a.ord) || 0, observacao: a.obs || '', status_prenhez: a.dg_status || 'Vazia', createdAt: now, updatedAt: now, synced: false })
+        toCreate.push({ 
+          loteId: Number(form.loteId), 
+          femea: femeaStr, 
+          categoria: form.categoria || 'Não definida', 
+          ord: Number(a.ord) || 0, 
+          observacao: a.obs || '', 
+          status_prenhez: a.dg_status || 'Vazia', 
+          createdAt: now, 
+          updatedAt: now, 
+          synced: false 
+        })
       }
     }
-    if (toUpdate.length > 0) { await db.animais.bulkPut(toUpdate); for (const u of toUpdate) await addToQueue('update', 'animais', u.id, u) }
-    if (toCreate.length > 0) { for (const n of toCreate) { const nid = await db.animais.add(n); await addToQueue('create', 'animais', nid as number, n) } }
-  } catch { appStore.notify('Erro ao salvar. Tente novamente.', 'error') }
+    
+    if (toUpdate.length > 0) { 
+      await db.animais.bulkPut(toUpdate)
+      for (const u of toUpdate) await addToQueue('update', 'animais', u.id, u) 
+    }
+    if (toCreate.length > 0) { 
+      for (const n of toCreate) { 
+        const nid = await db.animais.add(n)
+        await addToQueue('create', 'animais', nid as number, n) 
+      } 
+    }
+  } catch (e) { 
+    console.error(e)
+    appStore.notify('Erro ao salvar. Tente novamente.', 'error') 
+  }
   finally { saving.value = false }
 }
 

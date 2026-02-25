@@ -16,7 +16,7 @@
       <div v-else style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem;">
         <NuxtLink
           v-for="r in records" :key="r.id"
-          :to="`/iatf/${r.id}`"
+          :to="`/iatf/detalhes/${r.id}`"
           class="ag-card"
           style="display:block; text-decoration:none;"
         >

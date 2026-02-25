@@ -19,12 +19,12 @@
       </div>
 
       <div v-else style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem;">
-        <div v-for="a in filtered" :key="a.id" class="ag-card" style="display:flex; align-items:center; justify-content:space-between;">
+        <div v-for="a in filtered" :key="a.id" class="ag-card" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" @click="useRouter().push(`/animais/${a.id}`)">
           <div>
             <p style="font-weight:600; color:var(--ag-text); margin:0; font-size:0.9375rem;">{{ a.femea }}</p>
             <p style="font-size:0.75rem; color:var(--ag-text-3); margin:0.15rem 0 0;">{{ getNomeLote(a.loteId) }} • {{ a.categoria }}</p>
           </div>
-          <div style="display:flex; align-items:center; gap:0.5rem;">
+          <div style="display:flex; align-items:center; gap:0.5rem;" @click.stop>
             <span v-if="a.status_prenhez" :class="['ag-badge', a.status_prenhez === 'Prenhe' ? 'ag-badge-green' : '']"
               :style="a.status_prenhez !== 'Prenhe' ? 'background:rgba(220,38,38,.12);color:#dc2626;border-color:rgba(220,38,38,.3);' : ''">
               {{ a.status_prenhez }}
@@ -32,7 +32,7 @@
             <span :class="['ag-badge', a.synced ? 'ag-badge-green' : 'ag-badge-yellow']">{{ a.synced ? '✓' : '⏳' }}</span>
             <button
               style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem;"
-              @click="askDelete(a)"
+              @click.stop="askDelete(a)"
               onmouseover="this.style.color='#dc2626'"
               onmouseout="this.style.color='var(--ag-text-3)'"
             >

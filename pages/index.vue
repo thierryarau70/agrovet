@@ -12,6 +12,7 @@
             <span v-if="appStore.syncPending > 0" class="ag-badge ag-badge-yellow">
               {{ appStore.syncPending }} pendente{{ appStore.syncPending > 1 ? 's' : '' }}
             </span>
+            <GlobalSearch />
             <ThemeToggle />
             <button
               style="display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:0.5rem; border:1px solid var(--ag-border); background:var(--ag-bg-2); color:var(--ag-text-2); cursor:pointer; transition:all .2s;"
@@ -54,7 +55,13 @@
       <!-- Quick Actions -->
       <div style="margin-bottom:1.25rem;">
         <p class="ag-section-title">Ações Rápidas</p>
-        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:0.5rem;">
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:0.5rem; overflow-x:auto; padding-bottom:0.25rem;">
+          <NuxtLink to="/calendario" class="ag-quick-action">
+            <div class="ag-quick-action-icon">
+              <svg style="width:1.125rem;height:1.125rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <span style="font-size:0.7rem; font-weight:600;">Agenda</span>
+          </NuxtLink>
           <NuxtLink to="/iatf/novo" class="ag-quick-action">
             <div class="ag-quick-action-icon">
               <svg style="width:1.125rem;height:1.125rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -135,7 +142,7 @@
         <div v-else style="display:flex; flex-direction:column; gap:0.5rem;">
           <NuxtLink
             v-for="iatf in recentIatf" :key="iatf.id"
-            :to="`/iatf/${iatf.id}`"
+            :to="`/iatf/detalhes/${iatf.id}`"
             class="ag-card"
             style="display:flex; align-items:center; justify-content:space-between; text-decoration:none; cursor:pointer;"
           >
