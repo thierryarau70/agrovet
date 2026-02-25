@@ -50,11 +50,11 @@
               </div>
               <div>
                 <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Propriedade</label>
-                <Select v-model="form.propriedadeId" :options="propriedades" optionLabel="nome" optionValue="id" @change="onFazendaChange" placeholder="Selecione..." style="width:100%;" />
+                <Select v-model="form.propriedadeId" :options="propriedades" optionLabel="nome" optionValue="id" @change="onFazendaChange" placeholder="Selecione..." style="width:100%;" appendTo="body" />
               </div>
               <div>
                 <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Lote</label>
-                <Select v-model="form.loteId" :options="lotesFiltered" optionLabel="nome" optionValue="id" @change="onLoteChange" placeholder="Selecione..." style="width:100%;" :disabled="!form.propriedadeId" />
+                <Select v-model="form.loteId" :options="lotesFiltered" optionLabel="nome" optionValue="id" @change="onLoteChange" placeholder="Selecione..." style="width:100%;" :disabled="!form.propriedadeId" appendTo="body" />
               </div>
               <div>
                 <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--ag-text-2); margin-bottom:0.375rem;">Categoria</label>

@@ -24,6 +24,15 @@
   --ag-primary-light: #dcfce7;
 }
 
+/* ─── Icon sizes ─── */
+.w-5 {
+  width: 1.25rem;
+}
+
+.h-5 {
+  height: 1.25rem;
+}
+
 /* ─── Dark Mode tokens ─── */
 .app-dark {
   --ag-bg: #0a0f14;
@@ -720,6 +729,7 @@ body {
   background: var(--ag-border-strong);
   border-radius: 4px;
 }
+
 /* Fix PrimeVue overlays z-index across the app to appear above AppModal */
 .p-popover,
 .p-select-overlay,
@@ -741,20 +751,50 @@ body {
   font-family: inherit;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
 }
-.ag-input-neat::placeholder { color: var(--ag-text-3); font-weight: 400; }
-.ag-input-neat:hover { border-color: var(--ag-border-strong); }
-.ag-input-neat:focus { border-color: var(--ag-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 15%, transparent); }
-.app-dark .ag-input-neat { background: #111827; border-color: #2d3f52; }
-.app-dark .ag-input-neat:hover { border-color: #3d5268; }
-.app-dark .ag-input-neat:focus { border-color: var(--ag-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 20%, transparent); }
+
+.ag-input-neat::placeholder {
+  color: var(--ag-text-3);
+  font-weight: 400;
+}
+
+.ag-input-neat:hover {
+  border-color: var(--ag-border-strong);
+}
+
+.ag-input-neat:focus {
+  border-color: var(--ag-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 15%, transparent);
+}
+
+.app-dark .ag-input-neat {
+  background: #111827;
+  border-color: #2d3f52;
+}
+
+.app-dark .ag-input-neat:hover {
+  border-color: #3d5268;
+}
+
+.app-dark .ag-input-neat:focus {
+  border-color: var(--ag-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 20%, transparent);
+}
 
 /* --- Polished Table inputs (override old rules) --- */
-.ag-table thead th { padding: 0.75rem 0.5rem; border-bottom: 2px solid var(--ag-border); border-right: none; text-align: center; }
-.ag-table tbody td { padding: 0.5rem 0.25rem; border-right: none; vertical-align: middle; }
+.ag-table thead th {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 2px solid var(--ag-border);
+  border-right: none;
+  text-align: center;
+}
+
+.ag-table tbody td {
+  padding: 0.5rem 0.25rem;
+  border-right: none;
+  vertical-align: middle;
+}
+
 .ag-table tbody td input,
 .ag-table tbody td select {
   width: 100%;
@@ -769,15 +809,39 @@ body {
   font-family: inherit;
   text-align: center;
   transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ag-table tbody td select {
   -webkit-appearance: none;
   appearance: none;
 }
+
 .app-dark .ag-table tbody td input,
-.app-dark .ag-table tbody td select { background: #111827; border-color: #2d3f52; }
+.app-dark .ag-table tbody td select {
+  background: #111827;
+  border-color: #2d3f52;
+}
+
 .ag-table tbody td input:hover,
-.ag-table tbody td select:hover { border-color: var(--ag-border-strong); }
-.ag-table tbody td input:focus { border-color: var(--ag-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 15%, transparent); background: var(--ag-surface); }
+.ag-table tbody td select:hover {
+  border-color: var(--ag-border-strong);
+}
+
+.ag-table tbody td input:focus {
+  border-color: var(--ag-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 15%, transparent);
+  background: var(--ag-surface);
+}
 
 /* --- Polished DG button --- */
-.ag-dg-btn { border: 1.5px solid var(--ag-border); border-radius: 0.5rem; background: var(--ag-surface); font-family: inherit; }
-.app-dark .ag-dg-btn { background: #111827; border-color: #2d3f52; }
+.ag-dg-btn {
+  border: 1.5px solid var(--ag-border);
+  border-radius: 0.5rem;
+  background: var(--ag-surface);
+  font-family: inherit;
+}
+
+.app-dark .ag-dg-btn {
+  background: #111827;
+  border-color: #2d3f52;
+}
