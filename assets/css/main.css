@@ -742,30 +742,47 @@ body {
 
 /* --- Polished .ag-input-neat --- */
 .ag-input-neat {
+  /* Basic Reset & Sizing */
   width: 100%;
-  background: var(--ag-surface);
-  border: 1.5px solid var(--ag-border);
-  border-radius: 0.5rem;
-  color: var(--ag-text);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.8125rem;
+  padding: 0.6rem 0.75rem;
   font-family: inherit;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+
+  /* Colors & Borders */
+  background-color: var(--ag-surface);
+  border: 1px solid var(--ag-border);
+  color: var(--ag-text);
+
+  /* Smooth transitions */
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
-.ag-input-neat::placeholder {
-  color: var(--ag-text-3);
-  font-weight: 400;
+/* Base override for prime vue elements with this class */
+.p-inputtext.ag-input-neat,
+.p-inputnumber-input.ag-input-neat {
+  border: 1px solid var(--ag-border) !important;
+  background-color: var(--ag-surface) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: none !important;
+  padding: 0.6rem 0.75rem !important;
 }
 
-.ag-input-neat:hover {
-  border-color: var(--ag-border-strong);
+.ag-input-neat:hover,
+.p-inputtext.ag-input-neat:hover,
+.p-inputnumber-input.ag-input-neat:hover {
+  border-color: var(--ag-primary) !important;
 }
 
-.ag-input-neat:focus {
-  border-color: var(--ag-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-primary) 15%, transparent);
+.ag-input-neat:focus,
+.p-inputtext.ag-input-neat:focus,
+.p-inputnumber-input.ag-input-neat:focus {
+  outline: none !important;
+  border-color: var(--ag-primary) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ag-primary) 20%, transparent) !important;
+  background-color: var(--ag-surface) !important;
 }
 
 .app-dark .ag-input-neat {

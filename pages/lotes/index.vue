@@ -14,7 +14,7 @@
       </div>
 
       <div v-else style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem;">
-        <div v-for="l in lotes" :key="l.id" class="ag-card" style="display:flex; align-items:center; justify-content:space-between;">
+        <div v-for="l in lotes" :key="l.id" class="ag-card" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" @click="useRouter().push(`/lotes/${l.id}`)">
           <div>
             <p style="font-weight:600; color:var(--ag-text); margin:0; font-size:0.9375rem;">{{ l.nome }}</p>
             <p style="font-size:0.75rem; color:var(--ag-text-3); margin:0.15rem 0 0;">{{ getNomeFazenda(l.propriedadeId) }} • {{ l.categoria }} • {{ l.retiro || '—' }}</p>
@@ -23,7 +23,7 @@
             <span :class="['ag-badge', l.synced ? 'ag-badge-green' : 'ag-badge-yellow']">{{ l.synced ? '✓' : '⏳' }}</span>
             <button
               style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem;"
-              @click="askDelete(l)"
+              @click.stop="askDelete(l)"
               onmouseover="this.style.color='#dc2626'"
               onmouseout="this.style.color='var(--ag-text-3)'"
             >

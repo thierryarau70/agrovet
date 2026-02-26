@@ -91,6 +91,19 @@ export interface SanidadeRecord {
     synced: boolean
 }
 
+export interface TransacaoFinanceira {
+    id?: number
+    propriedadeId: number
+    tipo: 'Receita' | 'Despesa'
+    categoria: string
+    valor: number
+    data: string
+    descricao: string
+    createdAt: string
+    updatedAt: string
+    synced: boolean
+}
+
 export interface SyncQueueItem {
     id?: number
     action: 'create' | 'update' | 'delete'
@@ -107,6 +120,7 @@ class AgrovetDB extends Dexie {
     animais!: Table<Animal>
     iatfRecords!: Table<IatfRecord>
     sanidade!: Table<SanidadeRecord>
+    financeiro!: Table<TransacaoFinanceira>
     syncQueue!: Table<SyncQueueItem>
 
     constructor() {
@@ -120,6 +134,9 @@ class AgrovetDB extends Dexie {
         })
         this.version(2).stores({
             sanidade: '++id, animalId, tipo, data, synced'
+        })
+        this.version(3).stores({
+            financeiro: 'id, propriedadeId, tipo, categoria, data, synced'
         })
     }
 }

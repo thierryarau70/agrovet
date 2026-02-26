@@ -17,7 +17,8 @@
         <div
           v-for="p in propriedades" :key="p.id"
           class="ag-card"
-          style="display:flex; align-items:center; justify-content:space-between;"
+          style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;"
+          @click="useRouter().push(`/propriedades/${p.id}`)"
         >
           <div>
             <p style="font-weight:600; color:var(--ag-text); margin:0; font-size:0.9375rem;">{{ p.nome }}</p>
@@ -27,7 +28,7 @@
             <span :class="['ag-badge', p.synced ? 'ag-badge-green' : 'ag-badge-yellow']">{{ p.synced ? '✓ Sync' : '⏳' }}</span>
             <button
               style="background:none; border:none; cursor:pointer; color:var(--ag-text-3); padding:0.25rem; border-radius:0.375rem; transition:color .2s;"
-              @click="askDelete(p)"
+              @click.stop="askDelete(p)"
               onmouseover="this.style.color='#dc2626'"
               onmouseout="this.style.color='var(--ag-text-3)'"
             >

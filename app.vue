@@ -2,6 +2,9 @@
   <div @click="onUserActivity" @keydown="onUserActivity" @touchstart="onUserActivity">
     <VitePwaManifest />
     <OfflineBanner />
+    <div style="background-color: #ef4444; color: white; text-align: center; font-weight: bold; padding: 4px; z-index: 9999; position: sticky; top: 0; font-size: 0.8125rem;">
+      ⚠️ AMBIENTE DE HOMOLOGAÇÃO
+    </div>
     <AppNotifications />
     <ConfirmDialog />
     <NuxtLayout>
