@@ -1,9 +1,9 @@
 /* ─── Agrovet Global Styles ─── */
 @import "primeicons/primeicons.css";
 
-/* Use Inter as font */
+/* Use Poppins as font */
 * {
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;
 }
